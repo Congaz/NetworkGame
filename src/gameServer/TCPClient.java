@@ -14,6 +14,7 @@ public class TCPClient {
 		//System.out.print("Angiv server port: ");
 		//int serverPort = Integer.parseInt(inFromUser.readLine());
 
+		// xjkljhvjksdhfjkh
 
 		// Client Socket
 		Socket clientSocket= new Socket(domainIp, 9999);
