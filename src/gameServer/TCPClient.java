@@ -16,7 +16,10 @@ public class TCPClient {
 		//System.out.print("Angiv server port: ");
 		//int serverPort = Integer.parseInt(inFromUser.readLine());
 
-		// xjkljhvjksdhfjkh
+		//domains.put("max", "10.10.139.74");
+		//domains.put("kim", "10.10.131.225");
+		// Max: 10.10.139.74
+		//  10.10.138.225
 
 		// Client Socket
 		Socket clientSocket= new Socket(domainIp, 9999);

@@ -21,6 +21,7 @@ public class TCPClientThreadRead extends Thread
             BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
             while (true) {
+                System.out.println("--- Waiting for message ---");
                 String response = inFromServer.readLine();
                 System.out.println("From server: ");
                 System.out.println(response);
