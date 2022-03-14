@@ -8,5 +8,6 @@ public class App {
 		
 			Application.launch(GUI.class);
 		System.out.println("jkhkjhzxmnbxmnbncxj");
+		System.out.println("Max er super cool");
 	}
 }
