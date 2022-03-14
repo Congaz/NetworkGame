@@ -14,8 +14,8 @@ public class ServerThreadWrite extends Thread{
 	public ServerThreadWrite(Socket connSocket) {
 		this.connSocket = connSocket;
 		try {
-			outToClient = new DataOutputStream(connSocket.getOutputStream());
-			inFromUser = new BufferedReader(new InputStreamReader(System.in));
+			this.outToClient = new DataOutputStream(connSocket.getOutputStream());
+			this.inFromUser = new BufferedReader(new InputStreamReader(System.in));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -25,8 +25,8 @@ public class ServerThreadWrite extends Thread{
 		try {
 			while (true) {
 				System.out.println("Write message to client: ");
-				String message = inFromUser.readLine();
-				outToClient.writeBytes(message + "\n");
+				String message = this.inFromUser.readLine();
+				this.outToClient.writeBytes(message + "\n");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -35,7 +35,7 @@ public class ServerThreadWrite extends Thread{
 
 	public void write(String message) {
 		try {
-			outToClient.writeBytes(message + "\n");
+			this.outToClient.writeBytes(message + "\n");
 		} catch (Exception e ) {
 			e.printStackTrace();
 		}

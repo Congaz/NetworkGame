@@ -9,9 +9,8 @@ public class TCPClient {
 		String sentence;
 		String modifiedSentence;
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Angiv IP du vil forbinde til NU NUUUUU: ");
+		System.out.print("Angiv IP til Gamer Server: ");
 		String domainIp = inFromUser.readLine();
-
 
 		//System.out.print("Angiv server port: ");
 		//int serverPort = Integer.parseInt(inFromUser.readLine());
