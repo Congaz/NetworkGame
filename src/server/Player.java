@@ -15,7 +15,9 @@ public class Player
         this.write.write(message);
     }
 
-
+    public void fromServer(String message) {
+        System.out.println("Im player - from Server: ");
+    }
 
 
 }

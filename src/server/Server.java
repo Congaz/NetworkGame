@@ -23,11 +23,15 @@ public class Server
             ServerThreadRead serverRead = new ServerThreadRead(connSocket);
             ServerThreadWrite serverWrite = new ServerThreadWrite(connSocket);
             Player player = new Player(serverRead, serverWrite);
+            serverRead.attachPlayer(player);
 
             InetSocketAddress socketAddress = (InetSocketAddress) connSocket.getRemoteSocketAddress();
             String clientIp = socketAddress.getAddress().getHostAddress();
             //System.out.println("ClientIp: " + clientIp);
             players.put(clientIp, player);
+
+
+
             serverWrite.write("--- Du er forbindet til Game Server ---");
             serverWrite.write("Angiv dit spiller navn: ");
 
