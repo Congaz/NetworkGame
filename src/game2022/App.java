@@ -7,6 +7,6 @@ public class App {
 	public static void main(String[] args) {
 		
 			Application.launch(GUI.class);
-		System.out.println("jkhkjhj");
+		System.out.println("jkhkjhzxmnbxmnbncxj");
 	}
 }
