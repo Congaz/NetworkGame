@@ -24,7 +24,7 @@ public class TCPClientThreadWrite extends Thread
            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
             while (true) {
-                System.out.println("Write message to server:");
+                System.out.println("Write message to client:");
 			    String message = inFromUser.readLine();
 			    outToServer.writeBytes(message + '\n');
             }

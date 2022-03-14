@@ -3,16 +3,13 @@ import java.io.*;
 import java.net.*;
 
 public class TCPClient {
-
-
-
 	public static void main(String[] argv) throws Exception{
 		String sentence;
 		String modifiedSentence;
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Angiv domænenavn: ");
-		String domainName = inFromUser.readLine();
-		String domainIp = "";
+		System.out.print("Angiv IP du vil forbinde til: ");
+		String domainIp = inFromUser.readLine();
+
 
 		//System.out.print("Angiv server port: ");
 		//int serverPort = Integer.parseInt(inFromUser.readLine());
