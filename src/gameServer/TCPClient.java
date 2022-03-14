@@ -4,10 +4,12 @@ import java.net.*;
 
 public class TCPClient {
 	public static void main(String[] argv) throws Exception{
+
+
 		String sentence;
 		String modifiedSentence;
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Angiv IP du vil forbinde til: ");
+		System.out.print("Angiv IP du vil forbinde til NU NUUUUU: ");
 		String domainIp = inFromUser.readLine();
 
 
