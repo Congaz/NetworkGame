@@ -36,6 +36,8 @@ public class Server
             serverWrite.write("Angiv dit spiller navn: ");
 
 
+            //
+
             serverRead.start();
             serverWrite.start();
         }

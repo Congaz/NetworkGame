@@ -16,7 +16,7 @@ public class Player
     }
 
     public void fromServer(String message) {
-        System.out.println("Im player - from Server: ");
+        System.out.println("Im player object - from Server: " + message);
     }
 
 

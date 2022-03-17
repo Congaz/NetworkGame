@@ -1,0 +1,10 @@
+
+.mainGrid {
+    -fx-padding: 60  0  0  0;
+}
+
+.btnConnect {
+    -fx-pref-width: 125;
+    /*-fx-pref-height: 30;*/
+
+}
