@@ -8,3 +8,8 @@
     /*-fx-pref-height: 30;*/
 
 }
+
+.btnStart {
+    -fx-pref-width: 175;
+    -fx-pref-height: 40;
+}

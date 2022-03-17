@@ -30,9 +30,11 @@ public class GUI extends Application {
 	private static Player me;
 	private static List<Player> players = new ArrayList<Player>();
 
-	// --- Start scene elements ---
+	// --- Connect scene elements ---
 	private TextField txtfIp;
 	private TextField txtfName;
+	private Button btnConnect;
+	private Button btnStart;
 
 	// --- Game scene elements ---
 	private static Image image_floor;
@@ -135,11 +137,19 @@ public class GUI extends Application {
         mainGrid.add(this.txtfName, 1, 1);
 
 		// --- Connect btn ---
-		Button btnConnect = new Button("Connect");
-		btnConnect.getStyleClass().add("btnConnect");
-		mainGrid.add(btnConnect, 0, 2, 2, 1);
-        btnConnect.setOnAction(event -> this.connectAction());
-		GridPane.setHalignment(btnConnect, HPos.CENTER);
+		this.btnConnect = new Button("Connect");
+		this.btnConnect.getStyleClass().add("btnConnect");
+		mainGrid.add(this.btnConnect, 0, 2, 2, 1);
+        this.btnConnect.setOnAction(event -> this.connectAction());
+		GridPane.setHalignment(this.btnConnect, HPos.CENTER);
+
+		// --- Start btn ---
+		this.btnStart = new Button("Start Game");
+		this.btnStart.getStyleClass().add("btnStart");
+		mainGrid.add(this.btnStart, 0, 3, 2, 1);
+        this.btnStart.setOnAction(event -> this.startAction());
+		this.btnStart.setDisable(true);
+		GridPane.setHalignment(this.btnStart, HPos.CENTER);
 
 		return scene;
 	}
@@ -150,9 +160,15 @@ public class GUI extends Application {
 
 		try {
 			GUI.gameEngine.connect(serverIp, playerName);
+			btnConnect.setDisable(true);
+			btnStart.setDisable(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void startAction() {
+		System.out.println("START!");
 	}
 
 	/**
