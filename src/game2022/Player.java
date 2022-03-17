@@ -19,11 +19,11 @@ public class Player {
 
 	public String toString() {
 		String txt = "";
-		txt += "--- Player ---";
-		txt += "Name: " + this.name;
-		txt += "Points: " + this.points;
-		txt += "PosX: " + this.xpos;
-		txt += "PosY: " + this.ypos;
+		txt += "--- Player ---\n";
+		txt += "Name: " + this.name + "\n";;
+		txt += "Points: " + this.points + "\n";;
+		txt += "PosX: " + this.xpos + "\n";;
+		txt += "PosY: " + this.ypos + "\n";;
 		return txt;
 	}
 

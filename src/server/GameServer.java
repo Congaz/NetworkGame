@@ -54,7 +54,7 @@ public class GameServer
 
 
             int[] startPos = getRandomStartPos();
-            pt.write("id:" + pt.getPlayerId() + "posX:" + startPos[0] + ";posY:" + startPos[1]);
+            pt.write("id:" + pt.getPlayerId() + ";posX:" + startPos[0] + ";posY:" + startPos[1]);
 
             System.out.println("--- Connected ---");
             System.out.println("PlayerId: " + pt.getPlayerId());
@@ -66,7 +66,7 @@ public class GameServer
 
     private static int[] getRandomStartPos() {
         int min = 0;
-        int max = 20;
+        int max = 19;
         int posX = 0;
         int posY = 0;
 
