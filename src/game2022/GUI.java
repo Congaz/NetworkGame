@@ -90,11 +90,11 @@ public class GUI extends Application {
         GUI.stage.setFullScreen(false);
 
 		// Create start scene
-		//GUI.stage.setScene(this.createConnectScene());
+		GUI.stage.setScene(this.createConnectScene());
 
 
 		// Create game scene
-		GUI.stage.setScene(this.createGameScene());
+		//GUI.stage.setScene(this.createGameScene());
 
 		// Display stage.
 		GUI.stage.show();
