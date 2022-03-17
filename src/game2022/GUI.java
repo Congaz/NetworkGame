@@ -90,11 +90,11 @@ public class GUI extends Application {
         GUI.stage.setFullScreen(false);
 
 		// Create start scene
-		GUI.stage.setScene(this.createConnectScene());
+		//GUI.stage.setScene(this.createConnectScene());
 
 
 		// Create game scene
-		//GUI.stage.setScene(this.createGameScene());
+		GUI.stage.setScene(this.createGameScene());
 
 		// Display stage.
 		GUI.stage.show();
@@ -224,13 +224,13 @@ public class GUI extends Application {
 			});
 
             // *** Setting up players *************************************
-			//me = new Player("Orville", 9, 4, "up");
-			//players.add(me);
-			//fields[9][4].setGraphic(new ImageView(hero_up));
-			//
-			//Player harry = new Player("Harry", 14, 15, "up");
-			//players.add(harry);
-			//fields[14][15].setGraphic(new ImageView(hero_up));
+			me = new Player(1, "Orville", 9, 4, "up");
+			players.add(me);
+			fields[9][4].setGraphic(new ImageView(hero_up));
+
+			Player harry = new Player(2, "Harry", 14, 15, "up");
+			players.add(harry);
+			fields[14][15].setGraphic(new ImageView(hero_up));
 
 			// ************************************************************
 

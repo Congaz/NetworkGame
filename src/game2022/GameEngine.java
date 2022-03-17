@@ -33,12 +33,10 @@ public class GameEngine {
             }
 
             int playerId = Integer.parseInt(params.get("id"));
-            System.out.println("PlayerId: " + playerId);
+            int posX = Integer.parseInt(params.get("posX"));
+            int posY = Integer.parseInt(params.get("posY"));
 
-            //int playerId = this.inFromServer.readLine();
-
-
-            //this.createPlayer(playerId, playerName);
+            this.createPlayer(playerId, playerName, posX, posY);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,10 +51,12 @@ public class GameEngine {
 
     }
 
-    private void createPlayer(int playerId, String name) {
-        Player p = new Player(playerId, name, 14, 15, "up");
+    private void createPlayer(int playerId, String name, int posX, int posY) {
+        Player p = new Player(playerId, name, posX, posY, "up");
         this.players.put(playerId, p);
+        System.out.println(p);
     }
+
 
     private HashMap<String, String> parseFromServer(String message) {
         HashMap<String, String> params = new HashMap<String, String>();

@@ -5,7 +5,7 @@ public class Player {
 	private String name;
 	private int xpos;
 	private int ypos;
-	private int point;
+	private int points;
 	private String direction;
 
 	public Player(int id, String name, int xpos, int ypos, String direction) {
@@ -14,11 +14,17 @@ public class Player {
 		this.xpos = xpos;
 		this.ypos = ypos;
 		this.direction = direction;
-		this.point = 0;
+		this.points = 0;
 	}
 
 	public String toString() {
-		return name + ":   " + point;
+		String txt = "";
+		txt += "--- Player ---";
+		txt += "Name: " + this.name;
+		txt += "Points: " + this.points;
+		txt += "PosX: " + this.xpos;
+		txt += "PosY: " + this.ypos;
+		return txt;
 	}
 
 	public int getId() {
@@ -50,7 +56,7 @@ public class Player {
 	}
 
 	public void addPoints(int p) {
-		point += p;
+		points += p;
 	}
 
 }
