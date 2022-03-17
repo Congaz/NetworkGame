@@ -43,6 +43,10 @@ public class GameEngine {
         }
     }
 
+    public void startGame() {
+
+    }
+
     public void requestMove(int delta_x, int delta_y, String direction) {
 
     }
