@@ -1,13 +1,15 @@
 package game2022;
 
 public class Player {
+	private int id;
 	private String name;
 	private int xpos;
 	private int ypos;
 	private int point;
 	private String direction;
 
-	public Player(String name, int xpos, int ypos, String direction) {
+	public Player(int id, String name, int xpos, int ypos, String direction) {
+		this.id = id;
 		this.name = name;
 		this.xpos = xpos;
 		this.ypos = ypos;
@@ -17,6 +19,10 @@ public class Player {
 
 	public String toString() {
 		return name + ":   " + point;
+	}
+
+	public int getId() {
+		return this.id;
 	}
 
 	public int getXpos() {

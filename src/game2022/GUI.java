@@ -1,7 +1,7 @@
 package game2022;
 
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javafx.application.Application;
@@ -18,6 +18,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.*;
 
 public class GUI extends Application {
+
+	private static GameEngine gameEngine;
 
 	private static final int size = 20;
 	private static final int scene_height = size * 20 + 100;
@@ -73,6 +75,10 @@ public class GUI extends Application {
 
 	@Override
 	public void start(Stage stage) {
+
+		GUI.gameEngine = new GameEngine();
+
+
 		// Set-up stage
 		GUI.stage = stage;
 		GUI.stage.setTitle("The network game!");
@@ -84,7 +90,7 @@ public class GUI extends Application {
         GUI.stage.setFullScreen(false);
 
 		// Create start scene
-		GUI.stage.setScene(this.createStartScene());
+		GUI.stage.setScene(this.createConnectScene());
 
 
 		// Create game scene
@@ -92,9 +98,12 @@ public class GUI extends Application {
 
 		// Display stage.
 		GUI.stage.show();
+
+
+
 	}
 
-	private Scene createStartScene() {
+	private Scene createConnectScene() {
 		GridPane mainGrid = new GridPane();
         Scene scene = new Scene(mainGrid);
 		mainGrid.setHgap(10);
@@ -136,7 +145,14 @@ public class GUI extends Application {
 	}
 
 	private void connectAction() {
-		System.out.println("Connecting...");
+		String serverIp = this.txtfIp.getText().trim();
+		String playerName = this.txtfName.getText().trim();
+
+		try {
+			GUI.gameEngine.connect(serverIp, playerName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -208,13 +224,13 @@ public class GUI extends Application {
 			});
 
             // *** Setting up players *************************************
-			me = new Player("Orville", 9, 4, "up");
-			players.add(me);
-			fields[9][4].setGraphic(new ImageView(hero_up));
-
-			Player harry = new Player("Harry", 14, 15, "up");
-			players.add(harry);
-			fields[14][15].setGraphic(new ImageView(hero_up));
+			//me = new Player("Orville", 9, 4, "up");
+			//players.add(me);
+			//fields[9][4].setGraphic(new ImageView(hero_up));
+			//
+			//Player harry = new Player("Harry", 14, 15, "up");
+			//players.add(harry);
+			//fields[14][15].setGraphic(new ImageView(hero_up));
 
 			// ************************************************************
 
