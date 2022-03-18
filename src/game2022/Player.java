@@ -3,9 +3,9 @@ package game2022;
 public class Player {
 	private int id;
 	private String name;
+	private int points;
 	private int xpos;
 	private int ypos;
-	private int points;
 	private String direction;
 
 	public Player(int id, String name, int xpos, int ypos, String direction) {
@@ -20,15 +20,29 @@ public class Player {
 	public String toString() {
 		String txt = "";
 		txt += "--- Player ---\n";
-		txt += "Name: " + this.name + "\n";;
-		txt += "Points: " + this.points + "\n";;
-		txt += "PosX: " + this.xpos + "\n";;
-		txt += "PosY: " + this.ypos + "\n";;
+		txt += "Id: " + this.id + "\n";
+		txt += "Name: " + this.name + "\n";
+		txt += "Points: " + this.points + "\n";
+		txt += "PosX: " + this.xpos + "\n";
+		txt += "PosY: " + this.ypos + "\n";
+		txt += "Direction: " + this.direction + "\n";
 		return txt;
 	}
 
 	public int getId() {
 		return this.id;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public int getPoints() {
+		return this.points;
+	}
+
+	public void addPoints(int p) {
+		points += p;
 	}
 
 	public int getXpos() {
@@ -55,8 +69,5 @@ public class Player {
 		this.direction = direction;
 	}
 
-	public void addPoints(int p) {
-		points += p;
-	}
 
 }

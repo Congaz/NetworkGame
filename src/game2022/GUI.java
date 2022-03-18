@@ -11,18 +11,15 @@ import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.*;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.*;
 
 public class GUI extends Application {
 
 	private static GameEngine gameEngine;
 
 	private static final int size = 20;
-	private static final int scene_height = size * 20 + 100;
 	private static final int scene_width = size * 20 + 200;
+	private static final int scene_height = size * 20 + 90;
 
 	private static Stage stage;
 
@@ -35,13 +32,8 @@ public class GUI extends Application {
 	private Button btnConnect;
 	private Button btnStart;
 
-
-
 	@Override
 	public void start(Stage stage) {
-
-		GUI.gameEngine = new GameEngine();
-
 
 		// Set-up stage
 		GUI.stage = stage;
@@ -53,10 +45,13 @@ public class GUI extends Application {
         GUI.stage.setHeight(GUI.scene_height);
         GUI.stage.setFullScreen(false);
 
-		// Create start scene
-		//GUI.stage.setScene(this.createConnectScene());
+		// Create game engine
+		GUI.gameEngine = new GameEngine(GUI.stage);
 
-		GameScene gs = new GameScene(GUI.stage);
+		// Create start scene
+		GUI.stage.setScene(this.createConnectScene());
+
+
 
 		// Create game scene
 		//GUI.stage.setScene(this.createGameScene());
@@ -64,9 +59,10 @@ public class GUI extends Application {
 		// Display stage.
 		GUI.stage.show();
 
-		// Test
 
 	}
+
+
 
 	private Scene createConnectScene() {
 		GridPane mainGrid = new GridPane();
@@ -74,7 +70,7 @@ public class GUI extends Application {
 		mainGrid.setHgap(10);
 		mainGrid.setVgap(10);
 		mainGrid.setPadding(new Insets(20));
-		mainGrid.getStylesheets().add("/game2022/sceneConnect.css");
+		mainGrid.getStylesheets().add("/game2022/connectScene.css");
 		mainGrid.getStyleClass().add("mainGrid");
         mainGrid.setGridLinesVisible(false);
 		mainGrid.setAlignment(Pos.TOP_CENTER);
@@ -90,13 +86,15 @@ public class GUI extends Application {
 		// --- Game server IP ---
 		Label lblIp = new Label("Game Server IP: ");
 		mainGrid.add(lblIp, 0, 0);
-		this.txtfIp = new TextField();
+		String testIp = "127.0.0.1";
+		this.txtfIp = new TextField(testIp);
         mainGrid.add(this.txtfIp, 1, 0);
 
 		// --- Player name ---
 		Label lblName = new Label("Player name: ");
 		mainGrid.add(lblName, 0, 1);
-		this.txtfName = new TextField();
+		String testName = "Mig";
+		this.txtfName = new TextField(testName);
         mainGrid.add(this.txtfName, 1, 1);
 
 		// --- Connect btn ---
@@ -123,7 +121,7 @@ public class GUI extends Application {
 
 		try {
 			GUI.gameEngine.connect(serverIp, playerName);
-			btnConnect.setDisable(true);
+			//btnConnect.setDisable(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -9,6 +9,7 @@ import java.net.Socket;
 
 public class PlayerThread extends Thread {
 
+    private static GameServer gameServer;
     private static int idNext = 1;
 
     private Socket connSocket;
@@ -18,6 +19,7 @@ public class PlayerThread extends Thread {
     private String ip;
 
     public PlayerThread(Socket connSocket) {
+        //PlayerThread.gameServer = gameServer;
         this.connSocket = connSocket;
         this.id = PlayerThread.idNext++;
 
@@ -34,21 +36,32 @@ public class PlayerThread extends Thread {
 
     @Override
     public void run() {
+        // Listen for input from player.
+        while (true) {
+            try {
+                // Pass message on to all players.
+                GameServer.messageAllPlayers(this.inFromClient.readLine().trim());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-
+    public String getPlayerIp() {
+        return this.ip;
     }
 
     public int getPlayerId() {
         return this.id;
     }
 
-   public void write(String message) {
-		try {
-			this.outToClient.writeBytes(message + "\n");
-		} catch (Exception e ) {
-			e.printStackTrace();
-		}
+    public void write(String message) {
+        try {
+            this.outToClient.writeBytes(message + "\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
 }

@@ -1,0 +1,12 @@
+
+.grid {
+    /*-fx-fit-to-width: 100;*/
+    /*-fx-fit-to-height: 100;*/
+
+}
+
+.scoreList {
+    /*-fx-fit-to-width: true;*/
+    /*-fx-fit-to-height: true;*/
+    /*-fx-pref-width: 150;*/
+}
