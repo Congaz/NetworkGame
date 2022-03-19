@@ -1,7 +1,8 @@
-package game2022;
+package client.gui;
 
+import client.model.GameEngine;
+import client.model.Player;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -12,21 +13,17 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameScene
-{
-
+public class GameScene {
     private GameEngine gameEngine;
     private static final int size = 20; // Pixel size of graphics.
 
     private static Image image_floor;
     private static Image image_wall;
     private static Image hero_right, hero_left, hero_up, hero_down;
-
 
     private Label[][] fields;
     private TextArea scoreList;
@@ -46,16 +43,15 @@ public class GameScene
     // |                          | (1,1)        |
     // -------------------------------------------
 
-    public GameScene(GameEngine gameEngine, String[] board)
-    {
+    public GameScene(GameEngine gameEngine, String[] board) {
 
         try {
             this.gameEngine = gameEngine;
 
             GridPane grid = new GridPane();
             this.scene = new Scene(grid);
-            grid.getStylesheets().add("/game2022/gameScene.css");
-		    grid.getStyleClass().add("grid");
+            grid.getStylesheets().add("/client/gui/gameScene.css");
+            grid.getStyleClass().add("grid");
             grid.setHgap(10);
             grid.setVgap(10);
             grid.setPadding(new Insets(10));
@@ -72,13 +68,14 @@ public class GameScene
             scoreList.setEditable(false);
 
             // Load graphics
-            image_wall = new Image(getClass().getResourceAsStream("Image/wall4.png"), size, size, false, false);
-            image_floor = new Image(getClass().getResourceAsStream("Image/floor1.png"), size, size, false, false);
+            String imageDir = "images/";
+            image_wall = new Image(getClass().getResourceAsStream(imageDir + "wall4.png"), size, size, false, false);
+            image_floor = new Image(getClass().getResourceAsStream(imageDir + "floor1.png"), size, size, false, false);
 
-            hero_right = new Image(getClass().getResourceAsStream("Image/heroRight.png"), size, size, false, false);
-            hero_left = new Image(getClass().getResourceAsStream("Image/heroLeft.png"), size, size, false, false);
-            hero_up = new Image(getClass().getResourceAsStream("Image/heroUp.png"), size, size, false, false);
-            hero_down = new Image(getClass().getResourceAsStream("Image/heroDown.png"), size, size, false, false);
+            hero_right = new Image(getClass().getResourceAsStream(imageDir + "heroRight.png"), size, size, false, false);
+            hero_left = new Image(getClass().getResourceAsStream(imageDir + "heroLeft.png"), size, size, false, false);
+            hero_up = new Image(getClass().getResourceAsStream(imageDir + "heroUp.png"), size, size, false, false);
+            hero_down = new Image(getClass().getResourceAsStream(imageDir + "heroDown.png"), size, size, false, false);
 
             // Create and populate boardGrid
             GridPane boardGrid = new GridPane();
@@ -106,7 +103,7 @@ public class GameScene
             grid.add(scoreList, 1, 1);
 
             // Add eventlisteners to scene.
-            scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            this.scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                 switch (event.getCode()) {
                     case UP:
                         this.gameEngine.requestMove(0, -1, "up");
@@ -142,14 +139,12 @@ public class GameScene
         }
     }
 
-    public Scene getScene()
-    {
+    public Scene getScene() {
         return this.scene;
     }
 
 
-    public void updateScore()
-    {
+    public void updateScore() {
         StringBuffer b = new StringBuffer(100);
         for (Player p : this.gameEngine.getPlayers().values()) {
             b.append(p.getName() + ": " + p.getPoints() + "\r\n");
@@ -160,14 +155,12 @@ public class GameScene
         scoreList.setText(b.toString());
     }
 
-    private void requestMove(int delta_x, int delta_y, String direction)
-    {
+    private void requestMove(int delta_x, int delta_y, String direction) {
         System.out.println("MOVED!");
 
     }
 
-    private void playerMoved(int delta_x, int delta_y, String direction)
-    {
+    private void playerMoved(int delta_x, int delta_y, String direction) {
         // Update playerObj direction
         me.setDirection(direction);
         // Get pre-move player position.
@@ -232,8 +225,7 @@ public class GameScene
      * @param y
      * @return
      */
-    private Player getPlayerAt(int x, int y)
-    {
+    private Player getPlayerAt(int x, int y) {
         for (Player p : players) {
             if (p.getXpos() == x && p.getYpos() == y) {
                 return p;

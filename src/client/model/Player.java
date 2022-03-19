@@ -1,20 +1,24 @@
-package game2022;
+package client.model;
 
 public class Player {
 	private int id;
 	private String name;
+	private String color;
 	private int points;
 	private int xpos;
 	private int ypos;
 	private String direction;
+	private boolean ready;
 
 	public Player(int id, String name, int xpos, int ypos, String direction) {
 		this.id = id;
 		this.name = name;
+		this.color = "white";
 		this.xpos = xpos;
 		this.ypos = ypos;
 		this.direction = direction;
 		this.points = 0;
+		this.ready = false;
 	}
 
 	public String toString() {
@@ -35,6 +39,10 @@ public class Player {
 
 	public String getName() {
 		return this.name;
+	}
+
+	public String getColor() {
+		return color;
 	}
 
 	public int getPoints() {
@@ -69,5 +77,12 @@ public class Player {
 		this.direction = direction;
 	}
 
+	public void setReady(boolean state) {
+		this.ready = state;
+	}
+
+	public boolean isReady() {
+		return this.ready;
+	}
 
 }

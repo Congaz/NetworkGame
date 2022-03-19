@@ -6,26 +6,36 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class PlayerThread extends Thread {
 
-    private static GameServer gameServer;
-    private static int idNext = 1;
+    private static int nextId = 1;
+    private GameServer gameServer;
 
+    // --- Player vars ---
+    private int id;
+    private String ip;
+    private boolean ready;
+
+    // --- Connection vars ----
     private Socket connSocket;
     private BufferedReader inFromClient;
     private DataOutputStream outToClient;
-    private int id;
-    private String ip;
 
-    public PlayerThread(Socket connSocket) {
-        //PlayerThread.gameServer = gameServer;
+    public PlayerThread(GameServer gameServer, Socket connSocket) {
+        this.gameServer = gameServer;
         this.connSocket = connSocket;
-        this.id = PlayerThread.idNext++;
+        this.ready = false;
 
+        // Assign id
+        this.id = PlayerThread.nextId++;
+
+        // Get ip
         InetSocketAddress socketAddress = (InetSocketAddress) connSocket.getRemoteSocketAddress();
         this.ip = socketAddress.getAddress().getHostAddress();
 
+        // Create in/out streams
         try {
             this.inFromClient = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
             this.outToClient = new DataOutputStream(connSocket.getOutputStream());
@@ -36,11 +46,14 @@ public class PlayerThread extends Thread {
 
     @Override
     public void run() {
-        // Listen for input from player.
         while (true) {
             try {
-                // Pass message on to all players.
-                GameServer.messageAllPlayers(this.inFromClient.readLine().trim());
+                // Listen for input from this player.
+                String message = this.inFromClient.readLine().trim();
+                HashMap<String, String> params = this.gameServer.parseMessage(message);
+
+                // Broadcast message to all players (including this player).
+                this.gameServer.broadcast(params); // Sync'ed method.
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -55,7 +68,29 @@ public class PlayerThread extends Thread {
         return this.id;
     }
 
-    public void write(String message) {
+    public void setReady(boolean state) {
+        this.ready = state;
+    }
+
+    public boolean isReady() {
+        return this.ready;
+    }
+
+    /**
+     * Send message to this player.
+     * @param params
+     */
+    public void write(HashMap<String, String> params) {
+        // *** TEST **************************
+        if (true) {
+            System.out.println("--- Server ---");
+            System.out.println("Sending:");
+            System.out.println(params);
+        }
+        // ***********************************
+
+        String message = this.gameServer.composeMessage(params);
+
         try {
             this.outToClient.writeBytes(message + "\n");
         } catch (Exception e) {
@@ -63,5 +98,7 @@ public class PlayerThread extends Thread {
         }
 
     }
+
+
 
 }
