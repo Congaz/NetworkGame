@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 
 public class GameEngine {
@@ -215,11 +216,13 @@ public class GameEngine {
     }
 
     /**
-     *
+     * Accepts newly connected players and ready message from connected players.
+     * Throws IllegalArgumentException if requiredKeys are missing, or if message is unknown.
+     * Throws NoSuchElementException if no player objects exists for passed player id.
      * @param params
      * @throws IllegalArgumentException
      */
-    private void stateAcceptPlayer(HashMap<String, String> params) throws IllegalArgumentException {
+    private void stateAcceptPlayer(HashMap<String, String> params) throws RuntimeException {
         if (params.get("message").equals("connected")) {
             // --- Player has connected ---
             String[] requiredKeys = {"id", "name", "posX", "posY", "direction"};
@@ -241,6 +244,9 @@ public class GameEngine {
             this.checkRequiredKeys(params, requiredKeys);
 
             Player p = this.players.get(Integer.parseInt(params.get("id")));
+            if (p == null) {
+                throw new NoSuchElementException("Unable to retrieve player from id: " + params.get("id"));
+            }
             p.setReady(true);
         } else {
             throw new IllegalArgumentException("Unexpected message. Recieved: " + params.get("message"));
