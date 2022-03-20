@@ -204,7 +204,7 @@ public class ConnectScene {
         String parity = row % 2 == 0 ? "Even" : "Odd";
         // --- Player info ---
         pn = new Pane();
-        Label lblName = new Label(p.getName());
+        Label lblName = new Label(p.getPlayerName());
         pn.getChildren().add(lblName);
         pn.getStyleClass().add("playerPaneRow" + parity);
         grid.add(pn, col++, row);

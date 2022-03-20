@@ -14,8 +14,13 @@ public class PlayerThread extends Thread {
     private GameServer gameServer;
 
     // --- Player vars ---
-    private int id;
+    private int playerId;
     private String ip;
+    private int posX;
+    private int posY;
+    private String direction;
+    private String color;
+    private String playerName;
     private boolean ready;
 
     // --- Connection vars ----
@@ -23,13 +28,19 @@ public class PlayerThread extends Thread {
     private BufferedReader inFromClient;
     private DataOutputStream outToClient;
 
-    public PlayerThread(GameServer gameServer, Socket connSocket) {
+    public PlayerThread(GameServer gameServer, Socket connSocket,
+                        int posX, int posY, String direction, String color) {
         this.gameServer = gameServer;
         this.connSocket = connSocket;
+        this.posX = posX;
+        this.posY = posY;
+        this.direction = direction;
+        this.color = color;
+        this.playerName = "unknown";
         this.ready = false;
 
         // Assign id
-        this.id = PlayerThread.nextId++;
+        this.playerId = PlayerThread.nextId++;
 
         // Get ip
         InetSocketAddress socketAddress = (InetSocketAddress) connSocket.getRemoteSocketAddress();
@@ -52,8 +63,14 @@ public class PlayerThread extends Thread {
                 String message = this.inFromClient.readLine().trim();
                 HashMap<String, String> params = this.gameServer.parseMessage(message);
 
-                // Broadcast message to all players (including this player).
-                this.gameServer.broadcast(params); // Sync'ed method.
+                if (params.containsKey("broadcast") && params.get("broadcast").equals("false")) {
+                    // Message is intended for server only.
+                    this.gameServer.fromPlayer(params);
+                }
+                else {
+                    // Broadcast message to all players (including this player).
+                    this.gameServer.broadcast(params); // Sync'ed method.
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -64,17 +81,79 @@ public class PlayerThread extends Thread {
         return this.ip;
     }
 
+    /**
+     * Note: getId() method name is reserved by java.lang.Thread.
+     * @return
+     */
     public int getPlayerId() {
-        return this.id;
+        return this.playerId;
+    }
+
+    /**
+     * Note: getName() method name is reserved by java.lang.Thread.
+     * @return
+     *
+     */
+    public String getPlayerName() {
+        return this.playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public boolean isReady() {
+        return this.ready;
     }
 
     public void setReady(boolean state) {
         this.ready = state;
     }
 
-    public boolean isReady() {
-        return this.ready;
+
+    public int getPosX() {
+        return this.posX;
     }
+
+    public void setPosX(int posX) {
+        this.posX = posX;
+    }
+
+    public int getPosY() {
+        return this.posY;
+    }
+
+    public void setPosY(int posY) {
+        this.posY = posY;
+    }
+
+    public String getDirection() {
+        return this.direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public String getColor() {
+        return this.color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public HashMap<String, String> createUpdatePackage() {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("id", String.valueOf(this.playerId));
+        params.put("playerName", this.playerName);
+        params.put("posX", String.valueOf(this.posX));
+        params.put("posY", String.valueOf(this.posY));
+        params.put("direction", this.direction);
+        params.put("color", this.color);
+        return params;
+    }
+
 
     /**
      * Send message to this player.
@@ -98,7 +177,5 @@ public class PlayerThread extends Thread {
         }
 
     }
-
-
 
 }

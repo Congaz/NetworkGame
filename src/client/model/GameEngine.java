@@ -49,11 +49,18 @@ public class GameEngine {
 
         // *** TEST ********************
         if (false) {
-            this.createPlayer(1, "Michael", 0, 0, "up");
-            this.createPlayer(2, "Kim", 0, 0, "up");
-            this.createPlayer(3, "Max", 0, 0, "up");
-            this.createPlayer(4, "Lars", 0, 0, "up");
-            this.createPlayer(5, "Steffen", 0, 0, "up");
+            Player p;
+            int id = 1;
+            p = new Player(id++, "Max", 0, 0, "up", "white");
+            this.players.put(id, p);
+            p = new Player(id++, "Kim", 0, 0, "up", "white");
+            this.players.put(id, p);
+            p = new Player(id++, "Lars", 0, 0, "up", "white");
+            this.players.put(id, p);
+            p = new Player(id++, "Steffen", 0, 0, "up", "white");
+            this.players.put(id, p);
+            p = new Player(id++, "Line", 0, 0, "up", "white");
+            this.players.put(id, p);
             this.connectScene.updatePlayers();
         }
         // *****************************
@@ -107,7 +114,7 @@ public class GameEngine {
      *
      * @param message
      */
-    public void fromServer(String message) {
+    public void fromServer(String message) throws RuntimeException {
         // Parse message. Require that "message" key is present.
         HashMap<String, String> params = this.parseFromServer(message, new String[]{"message"});
 
@@ -128,22 +135,29 @@ public class GameEngine {
 
         // --- Determine action ---
         try {
-            if (this.state.equals("connect")) {
-                this.stateConnect(params);
-                Platform.runLater(() -> this.connectScene.updatePlayers());
-                // Platform.runlater() is necessary to call an javaFX application method
-                // from a non-JavaFx application thread.
-            } else if (this.state.equals("acceptPlayer")) {
-                this.stateAcceptPlayer(params);
-                Platform.runLater(() -> this.connectScene.updatePlayers());
-            } else if (this.state.equals("countdown")) {
-                int countdown = Integer.parseInt(params.get("countdown"));
-                Platform.runLater(() -> this.connectScene.updateCountdown(countdown));
-            } else if (this.state.equals("start")) {
-                this.stateStart();
+            switch (this.state) {
+                case "connect":
+                    this.stateConnect(params);
+                    Platform.runLater(() -> this.connectScene.updatePlayers());
+                    // Platform.runlater() is necessary to call an javaFX application method
+                    // from a non-JavaFx application thread.
+                    break;
+                case "acceptPlayer":
+                    this.stateAcceptPlayer(params);
+                    Platform.runLater(() -> this.connectScene.updatePlayers());
+                    break;
+                case "countdown":
+                    int countdown = Integer.parseInt(params.get("countdown"));
+                    Platform.runLater(() -> this.connectScene.updateCountdown(countdown));
+                    break;
+                case "start":
+                    this.stateStart();
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unknown state: " + this.state);
             }
         }
-        catch (Exception e) {
+        catch (RuntimeException e) {
             e.printStackTrace();
         }
 
@@ -178,13 +192,11 @@ public class GameEngine {
      * @param paramsIn
      */
     private void stateConnect(HashMap<String, String> paramsIn) throws IllegalArgumentException {
-        String[] requiredKeys = {"message", "id", "posX", "posY", "direction", "board"};
+        String[] requiredKeys = {"message", "id", "board"};
         this.checkRequiredKeys(paramsIn, requiredKeys);
 
         if (!paramsIn.get("message").equals("connected")) {
-            throw new IllegalArgumentException(
-                "Unexpected message. Expected 'connected'. Recieved: " + paramsIn.get("message")
-            );
+            throw new IllegalArgumentException("Expected 'connected' message. Recieved: " + paramsIn.get("message"));
         }
 
         // Change state
@@ -194,24 +206,23 @@ public class GameEngine {
         // If board is invalid, alert will be shown and app will exit.
         this.board = this.convertString2Board(paramsIn.get("board"));
 
-        // Create this player object
-        int id = Integer.parseInt(paramsIn.get("id"));
-        int posX = Integer.parseInt(paramsIn.get("posX"));
-        int posY = Integer.parseInt(paramsIn.get("posY"));
-        String direction = paramsIn.get("direction");
-        this.createPlayer(id, this.name, posX, posY, direction);
-        this.id = id;
+        // --- Create this player object ---
+        paramsIn.put("name", this.name); // Add name to params.
+        this.createPlayer(paramsIn);
+        this.id = Integer.parseInt(paramsIn.get("id"));
 
-        // Broadcast to server that we are connected along with our player params.
+        // Send to server that we are connected along with our id and name.
         HashMap<String, String> paramsOut = new HashMap<>();
         paramsOut.put("message", "connected");
         //paramsOut.put("broadcastExcludeId", String.valueOf(this.id)); // Exclude ourselves from broadcast.
-        paramsOut.put("broadcastExcludeId", String.valueOf(-1));
+        //paramsOut.put("broadcastExcludeId", String.valueOf(-1));
+        paramsOut.put("broadcast", "false");
         paramsOut.put("id", String.valueOf(this.id));
-        paramsOut.put("name", name);
-        paramsOut.put("posX", String.valueOf(posX));
-        paramsOut.put("posY", String.valueOf(posY));
-        paramsOut.put("direction", direction);
+        paramsOut.put("name", this.name);
+        //paramsOut.put("posX", paramsIn.get("posX"));
+        //paramsOut.put("posY", paramsIn.get("posY"));
+        //paramsOut.put("direction", paramsIn.get("direction"));
+        //paramsOut.put("color", paramsIn.get("color"));
         this.writeServer(paramsOut);
     }
 
@@ -225,18 +236,13 @@ public class GameEngine {
     private void stateAcceptPlayer(HashMap<String, String> params) throws RuntimeException {
         if (params.get("message").equals("connected")) {
             // --- Player has connected ---
-            String[] requiredKeys = {"id", "name", "posX", "posY", "direction"};
+            String[] requiredKeys = {"id", "name", "posX", "posY", "direction", "color"};
             this.checkRequiredKeys(params, requiredKeys);
 
             // Fail safe: Ignore our own player id
             if (Integer.parseInt(params.get("id")) != this.id) {
                 // Create foreign player object
-                int id = Integer.parseInt(params.get("id"));
-                String name = params.get("name");
-                int posX = Integer.parseInt(params.get("posX"));
-                int posY = Integer.parseInt(params.get("posY"));
-                String direction = params.get("direction");
-                this.createPlayer(id, name, posX, posY, direction);
+                this.createPlayer(params);
             }
         } else if (params.get("message").equals("ready")) {
             // --- Player has clicked start ---
@@ -245,7 +251,7 @@ public class GameEngine {
 
             Player p = this.players.get(Integer.parseInt(params.get("id")));
             if (p == null) {
-                throw new NoSuchElementException("Unable to retrieve player from id: " + params.get("id"));
+                throw new NoSuchElementException("Unable to retrieve player object from id: " + params.get("id"));
             }
             p.setReady(true);
         } else {
@@ -325,9 +331,25 @@ public class GameEngine {
         return board;
     }
 
-    private void createPlayer(int playerId, String name, int posX, int posY, String direction) {
-        Player p = new Player(playerId, name, posX, posY, direction);
-        this.players.put(playerId, p);
+    /**
+     * Throws IllegalArgumentException if required keys are missing.
+     * @param params
+     */
+    private void createPlayer(HashMap<String, String> params) throws IllegalArgumentException {
+        // --- Check for required keys ---
+        String[] requiredKeys = {"id", "name", "posX", "posY", "direction", "color"};
+        this.checkRequiredKeys(params, requiredKeys);
+        // --- Prepare values ---
+        int id = Integer.parseInt(params.get("id"));
+        String name = params.get("name");
+        int posX = Integer.parseInt(params.get("posX"));
+        int posY = Integer.parseInt(params.get("posY"));
+        String direction = params.get("direction");
+        String color = params.get("color");
+        // --- Create player ---
+        Player p = new Player(id, name, posX, posY, direction, color);
+        // Add to players hashMap.
+        this.players.put(id, p);
     }
 
     /**

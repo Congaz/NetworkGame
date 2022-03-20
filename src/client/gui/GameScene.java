@@ -147,8 +147,8 @@ public class GameScene {
     public void updateScore() {
         StringBuffer b = new StringBuffer(100);
         for (Player p : this.gameEngine.getPlayers().values()) {
-            b.append(p.getName() + ": " + p.getPoints() + "\r\n");
-            System.out.println(p.getName() + ": " + p.getPoints() + "\r\n");
+            b.append(p.getPlayerName() + ": " + p.getPoints() + "\r\n");
+            System.out.println(p.getPlayerName() + ": " + p.getPoints() + "\r\n");
         }
 
         // Populate scorelist.
@@ -164,7 +164,7 @@ public class GameScene {
         // Update playerObj direction
         me.setDirection(direction);
         // Get pre-move player position.
-        int x = me.getXpos(), y = me.getYpos();
+        int x = me.getPosX(), y = me.getPosY();
 
         // --- Game logic ---------------------------------
         if (board[y + delta_y].charAt(x + delta_x) == 'w') {
@@ -195,8 +195,8 @@ public class GameScene {
                 y += delta_y;
 
                 // Update playerObj.
-                me.setXpos(x);
-                me.setYpos(y);
+                me.setPosX(x);
+                me.setPosY(y);
 
             }
         }
@@ -227,7 +227,7 @@ public class GameScene {
      */
     private Player getPlayerAt(int x, int y) {
         for (Player p : players) {
-            if (p.getXpos() == x && p.getYpos() == y) {
+            if (p.getPosX() == x && p.getPosY() == y) {
                 return p;
             }
         }
