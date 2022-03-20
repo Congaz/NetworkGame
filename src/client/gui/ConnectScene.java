@@ -99,7 +99,7 @@ public class ConnectScene {
         // --- Game server IP ---
         Label lblIp = new Label("Game Server IP: ");
         grid.add(lblIp, 0, 0);
-        String testIp = "127.0.0.1";
+        String testIp = "192.168.0.102";
         this.txtfIp = new TextField(testIp);
         grid.add(this.txtfIp, 1, 0);
 
