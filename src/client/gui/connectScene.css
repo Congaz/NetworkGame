@@ -24,10 +24,10 @@
 /* ----------------------------------------------------------------------------------------------------------------- */
 
 .messageGrid {
-    -fx-font-size: 11pt;
+    -fx-font-size: 12pt;
 }
 
-.messageGrid .countdown {
+.messageGrid.countdown {
     -fx-background-color: red;
 }
 
@@ -40,7 +40,7 @@
 
 /* ----------------------------------------------------------------------------------------------------------------- */
 
-.playersGrid {
+.playerGrid {
     -fx-pref-width: 400;
     -fx-pref-height: 105;
     -fx-padding: 0;
@@ -51,7 +51,7 @@
     /*-fx-background-color: #eeeeee;*/
 }
 
-.playersGrid Label {
+.playerGrid Label {
     -fx-padding: 0 10 0 10;
 }
 

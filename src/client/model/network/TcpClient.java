@@ -17,23 +17,51 @@ public class TcpClient {
         this.listener = listener;
     }
 
-    public void connect(String serverIp) throws Exception {
+    /**
+     * Connects to server.
+     * Throws UnsupportedOperationException if connection is already established.
+     * Throws UnknownHostException if IP adress was unresponsive.
+     * Throws IOException on failure to create I/O streams.
+     * Throws IllegalThreadStateException if TCPClientThreadRead was already started.
+     * @param serverIp
+     * @throws Exception
+     */
+    public void connect(String serverIp) throws IOException {
         if (this.clientSocket != null) {
-            throw new Exception("IllegalAction. Connection already established.");
+            throw new UnsupportedOperationException("Connection already established.");
         }
 
         try {
-            // Connect to server
+            // --- Connect to server ---
+            // Throws: IOException: If I/O error occurs when creating socket
+            // Throws: UnknownHostException (sub-class of IOException): IP adress can not be resolved.
             this.clientSocket = new Socket(serverIp, 9999);
-            // Create output stream
+
+            // --- Create output stream ---
+            // Throws: IOException: If I/O error occurs when creating output stream
             this.outToServer = new DataOutputStream(clientSocket.getOutputStream());
-            // Create read thread (establishes input stream)
+
+            // --- Create read thread (establishes input stream) ---
             this.threadRead = new TcpClientThreadRead(this.clientSocket, this.listener);
+            // Throws: IllegalThreadStateException: If the thread was already started
             this.threadRead.start();
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IllegalThreadStateException e) {
+            // --- TCPCLientThreadRead already started ---
+            //e.printStackTrace();
+            throw e;
         }
+        catch (UnknownHostException e) {
+            // --- IP adress incorrect/non-responsive ---
+            //e.printStackTrace();
+            throw e;
+        }
+        catch (IOException e) {
+            // --- Failure to create I/O streams ---
+            //e.printStackTrace();
+            throw e;
+        }
+
     }
 
     /**

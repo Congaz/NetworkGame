@@ -16,16 +16,19 @@ public class TcpClientThreadRead extends Thread {
 
     public void run() {
         try {
-            // Create input stream
+            // --- Create input stream ---
+            // Throws: IOException
             BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
             // Listen for input
             while (true) {
+                // Throws: IOException
                 String message = inFromServer.readLine().trim();
                 this.listener.response(message);
             }
         }
         catch (IOException e) {
+            System.out.println("TCPClientThreadRead IOException.");
             e.printStackTrace();
         }
     }

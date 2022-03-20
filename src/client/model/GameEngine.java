@@ -1,14 +1,17 @@
 package client.model;
 
+import client.gui.AlertFactory;
 import client.gui.ConnectScene;
 import client.gui.GameScene;
 import client.model.network.TcpResponse;
 import client.model.network.TcpClient;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
 
 public class GameEngine {
     // --- Network ---
@@ -26,29 +29,13 @@ public class GameEngine {
     // --- Game vars ---
     private String state;
     private final HashMap<Integer, Player> players = new HashMap<Integer, Player>();
-    private String[] board = {
-            // 20x20
-            "wwwwwwwwwwwwwwwwwwww",
-            "w        ww        w",
-            "w w  w  www w  w  ww",
-            "w w  w   ww w  w  ww",
-            "w  w               w",
-            "w w w w w w w  w  ww",
-            "w w     www w  w  ww",
-            "w w     w w w  w  ww",
-            "w   w w  w  w  w   w",
-            "w     w  w  w  w   w",
-            "w ww ww        w  ww",
-            "w  w w    w    w  ww",
-            "w        ww w  w  ww",
-            "w         w w  w  ww",
-            "w        w     w  ww",
-            "w  w              ww",
-            "w  w www  w w  ww ww",
-            "w w      ww w     ww",
-            "w   w   ww  w      w",
-            "wwwwwwwwwwwwwwwwwwww"
-    };
+
+    // --- Board ---
+    // Required board size
+    private final int BOARD_NUM_OF_COLS = 20;
+    private final int BOARD_NUM_OF_ROWS = 20;
+    // Board array.
+    private String[] board;
 
     public GameEngine(Stage stage) {
         // --- Gui ---
@@ -74,7 +61,14 @@ public class GameEngine {
         TcpResponse listener = (String message) -> this.fromServer(message);
         this.tcpClient = new TcpClient(listener);
 
-        //this.stateStart();
+        //this.connectScene.updateCountdown(5);
+
+        //Alert alert = new Alert(Alert.AlertType.ERROR, "Are you sure you want to format your system?");
+        //alert.showAndWait();
+        //Optional<ButtonType> result = alert.showAndWait();
+        //if (result.isPresent() && result.get() == ButtonType.OK) {
+        //    System.out.println("OK");
+        //}
     }
 
     // *** Methods invoked by Gui ********************************************************************************
@@ -82,20 +76,16 @@ public class GameEngine {
     /**
      * Establishes connection to game server.
      * Called by ConnectScene.
+     *
      * @param serverIp
      * @param playerName
      * @throws Exception
      */
-    public void connectAction(String serverIp, String playerName) {
-        try {
-            this.name = playerName;
-            // Connect to server.
-            this.tcpClient.connect(serverIp);
-            // Responses from server will invoke fromServer() method.
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void connectAction(String serverIp, String playerName) throws IOException {
+        this.name = playerName;
+        // --- Connect to server ---
+        // Responses from server will invoke fromServer() method.
+        this.tcpClient.connect(serverIp);
     }
 
     /**
@@ -131,9 +121,8 @@ public class GameEngine {
         // --- Change state by server message ---
         if (params.get("message").equals("countdown")) {
             this.state = params.get("message");
-        }
-        else if (params.get("message").equals("start")) {
-             this.state = params.get("message");
+        } else if (params.get("message").equals("start")) {
+            this.state = params.get("message");
         }
 
         // --- Determine action ---
@@ -143,17 +132,14 @@ public class GameEngine {
                 Platform.runLater(() -> this.connectScene.updatePlayers());
                 // Platform.runlater() is necessary to call an javaFX application method
                 // from a non-JavaFx application thread.
-            }
-            else if (this.state.equals("acceptPlayer")) {
+            } else if (this.state.equals("acceptPlayer")) {
                 this.stateAcceptPlayer(params);
                 Platform.runLater(() -> this.connectScene.updatePlayers());
-            }
-            else if (this.state.equals("countdown")) {
-               int countdown = Integer.parseInt(params.get("countdown"));
-               Platform.runLater(() -> this.connectScene.updateCountdown(countdown));
-            }
-            else if (this.state.equals("start")) {
-               this.stateStart();
+            } else if (this.state.equals("countdown")) {
+                int countdown = Integer.parseInt(params.get("countdown"));
+                Platform.runLater(() -> this.connectScene.updateCountdown(countdown));
+            } else if (this.state.equals("start")) {
+                this.stateStart();
             }
         }
         catch (Exception e) {
@@ -161,8 +147,6 @@ public class GameEngine {
         }
 
     }
-
-
 
 
     public HashMap<Integer, Player> getPlayers() {
@@ -189,18 +173,25 @@ public class GameEngine {
 
     /**
      * Called upon inital connection with server
+     * Throws IllegalArgumentException if passed params are invalid.
      * @param paramsIn
      */
-    private void stateConnect(HashMap<String, String> paramsIn) throws Exception {
-        String[] requiredKeys = {"message", "id", "posX", "posY", "direction"};
+    private void stateConnect(HashMap<String, String> paramsIn) throws IllegalArgumentException {
+        String[] requiredKeys = {"message", "id", "posX", "posY", "direction", "board"};
         this.checkRequiredKeys(paramsIn, requiredKeys);
 
         if (!paramsIn.get("message").equals("connected")) {
-            throw new Exception("Unexpected message. Expected 'connected'. Recieved: " + paramsIn.get("message"));
+            throw new IllegalArgumentException(
+                "Unexpected message. Expected 'connected'. Recieved: " + paramsIn.get("message")
+            );
         }
 
         // Change state
         this.state = "acceptPlayer";
+
+        // --- Create board ---
+        // If board is invalid, alert will be shown and app will exit.
+        this.board = this.convertString2Board(paramsIn.get("board"));
 
         // Create this player object
         int id = Integer.parseInt(paramsIn.get("id"));
@@ -223,7 +214,12 @@ public class GameEngine {
         this.writeServer(paramsOut);
     }
 
-    private void stateAcceptPlayer(HashMap<String, String> params) throws Exception {
+    /**
+     *
+     * @param params
+     * @throws IllegalArgumentException
+     */
+    private void stateAcceptPlayer(HashMap<String, String> params) throws IllegalArgumentException {
         if (params.get("message").equals("connected")) {
             // --- Player has connected ---
             String[] requiredKeys = {"id", "name", "posX", "posY", "direction"};
@@ -239,17 +235,15 @@ public class GameEngine {
                 String direction = params.get("direction");
                 this.createPlayer(id, name, posX, posY, direction);
             }
-        }
-        else if (params.get("message").equals("ready")) {
+        } else if (params.get("message").equals("ready")) {
             // --- Player has clicked start ---
             String[] requiredKeys = {"id"};
             this.checkRequiredKeys(params, requiredKeys);
 
             Player p = this.players.get(Integer.parseInt(params.get("id")));
             p.setReady(true);
-        }
-        else {
-            throw new Exception("Unexpected message. Recieved: " + params.get("message"));
+        } else {
+            throw new IllegalArgumentException("Unexpected message. Recieved: " + params.get("message"));
         }
     }
 
@@ -275,6 +269,56 @@ public class GameEngine {
 
     // ***************************************************************************************************************
 
+    /**
+     * Creates board from passed string.
+     * FOR NOW:
+     * If board is invalid, alert will shown and app will exit.
+     * @param source
+     * @return
+     */
+    private String[] convertString2Board(String source) {
+        // Create array from source
+        String[] board = source.split(",");
+
+        // *** TEST ********************************
+        if (false) {
+            // Make board invalid.
+            board[0] = board[0] + "bla bla bla";
+        }
+        //*******************************************
+
+        try {
+            // --- Verify board size ---
+            // Throws IllegalStateException if board is invalid.
+            this.verifyBoardSize(board);
+        }
+        catch (IllegalStateException e) {
+            // For now we show and alert and exit app.
+            // Regarding CountDownLatch see:
+            // https://thesoftwareprogrammer.com/2018/01/26/how-can-i-run-something-in-another-thread-and-wait-for-the-result-in-a-different-thread-using-java-javafx/
+
+            final CountDownLatch latchToWaitForJavaFx = new CountDownLatch(1);
+
+            Platform.runLater(() -> {
+                Alert alert = AlertFactory.serverError(e);
+                alert.showAndWait();
+                latchToWaitForJavaFx.countDown();
+            });
+
+            try {
+                // Wait for runLater() to finish.
+                latchToWaitForJavaFx.await();
+            }
+            catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+
+            System.exit(0); // 0 = Exit without warning.
+        }
+
+        return board;
+    }
+
     private void createPlayer(int playerId, String name, int posX, int posY, String direction) {
         Player p = new Player(playerId, name, posX, posY, direction);
         this.players.put(playerId, p);
@@ -294,6 +338,7 @@ public class GameEngine {
 
     /**
      * Converts HashMap to string.
+     *
      * @param params
      * @return
      */
@@ -336,16 +381,50 @@ public class GameEngine {
      * @param requiredKeys
      * @return
      */
-    private HashMap<String, String> parseFromServer(String message, String[] requiredKeys) {
+    private HashMap<String, String> parseFromServer(String message, String[] requiredKeys) throws IllegalArgumentException {
         HashMap<String, String> params = parseFromServer(message);
         this.checkRequiredKeys(params, requiredKeys); // Throws Exception if any keys are missing,
         return params;
     }
 
-    private void checkRequiredKeys(HashMap<String, String> params, String[] requiredKeys) {
+    private void checkRequiredKeys(HashMap<String, String> params, String[] requiredKeys) throws IllegalArgumentException {
         for (String requiredKey : requiredKeys) {
             if (!params.containsKey(requiredKey)) {
-                throw new NoSuchElementException("Required key is missing: " + requiredKey);
+                throw new IllegalArgumentException("Required key is missing: " + requiredKey);
+            }
+        }
+    }
+
+    /**
+     * Verifies board size.
+     * Throws IllegalStateException if board is invalid.
+     * @param board
+     * @throws IllegalStateException
+     */
+    private void verifyBoardSize(String[] board) throws IllegalStateException {
+        if (board.length != this.BOARD_NUM_OF_ROWS) {
+            throw new IllegalStateException(
+                    "Board is invalid. " +
+                    "Rows required: " + this.BOARD_NUM_OF_ROWS + " Rows present: " + board.length
+            );
+        } else {
+            // Check length of each row
+            boolean passed = true;
+            int i = 0;
+            while (i < board.length && passed) {
+                if (board[i].length() != this.BOARD_NUM_OF_COLS) {
+                    passed = false;
+                } else {
+                    i++;
+                }
+            }
+            // Check if board passed col inspection.
+            if (!passed) {
+                throw new IllegalStateException(
+                    "Board is invalid. " +
+                    "Cols required: " + this.BOARD_NUM_OF_COLS + " " +
+                    "Cols present in row(" + (i + 1) + "): " + board[i].length()
+                );
             }
         }
     }

@@ -11,35 +11,13 @@ public class GameServer {
     private final int COUNTDOWN_TIME = 5; // Define countdown time in seconds.
     private int countdown;
 
-    // --- Players ---
+    // --- Player objects ---
     private final HashMap<Integer, PlayerThread> playerThreads = new HashMap<Integer, PlayerThread>();
-    private final boolean[][] occupiedStartPos = new boolean[20][20]; // x/y.
     private final String[] directions = {"up", "down", "left", "right"};
 
-    // --- Board ---
-    private final String[] board = {
-            // 20x20
-            "wwwwwwwwwwwwwwwwwwww",
-            "w        ww        w",
-            "w w  w  www w  w  ww",
-            "w w  w   ww w  w  ww",
-            "w  w               w",
-            "w w w w w w w  w  ww",
-            "w w     www w  w  ww",
-            "w w     w w w  w  ww",
-            "w   w w  w  w  w   w",
-            "w     w  w  w  w   w",
-            "w ww ww        w  ww",
-            "w  w w    w    w  ww",
-            "w        ww w  w  ww",
-            "w         w w  w  ww",
-            "w        w     w  ww",
-            "w  w              ww",
-            "w  w www  w w  ww ww",
-            "w w      ww w     ww",
-            "w   w   ww  w      w",
-            "wwwwwwwwwwwwwwwwwwww"
-    };
+    // --- Board objects ---
+    private String[] board;
+    private final boolean[][] occupiedStartPos = new boolean[20][20]; // x/y.
 
     /**
      *
@@ -47,8 +25,15 @@ public class GameServer {
     public GameServer() {
         System.out.println("--- Server ---");
         System.out.println("Running");
-        this.reset();
 
+        try {
+            BoardFactory.verfifyAll();
+        }
+        catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        this.reset();
         this.serverState = "acceptConnections";
 
         try {
@@ -67,13 +52,14 @@ public class GameServer {
                 int[] startPos = getRandomStartPos();
                 String direction = getRandomStartDirection();
 
-                // Send start params to this player.
+                // Send start params and game board to this player.
                 HashMap<String, String> params = new HashMap<>();
                 params.put("message", "connected");
                 params.put("id", String.valueOf(pt.getPlayerId()));
                 params.put("posX", String.valueOf(startPos[0]));
                 params.put("posY", String.valueOf(startPos[1]));
                 params.put("direction", direction);
+                params.put("board", BoardFactory.convertBoard2String(this.board));
                 pt.write(params);
 
                 // Start broadcast mirroring from this player.
@@ -95,6 +81,9 @@ public class GameServer {
     private void reset() {
         // Reset countdown
         this.countdown = this.COUNTDOWN_TIME;
+
+        // Create board
+        this.board = BoardFactory.createRandomBoard();
 
         // Fill occupiedStartPos with false.
         for (boolean[] cols : occupiedStartPos) {
