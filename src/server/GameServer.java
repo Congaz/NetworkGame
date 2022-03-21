@@ -129,6 +129,13 @@ public class GameServer {
             excludeId = Integer.parseInt(params.get("broadcastExcludeId"));
         }
 
+        if (this.serverState.equals("running")) {
+            this.checkRequiredKeys(params, new String[]{"message"});
+            if (params.get("message").equals("requestMove")) {
+                params.replace("message", "move");
+            }
+        }
+
         // Broadcast
         for (PlayerThread pt : playerThreads.values()) {
             if (excludeId == -1 || pt.getPlayerId() != excludeId) {
@@ -158,7 +165,7 @@ public class GameServer {
         }
     }
 
-    // *** Pre-game state methods **********************************************************************************
+    // *** Pre-game methods **********************************************************************************
 
     /**
      * Throws IllegalArgumentException on missing keys.
@@ -207,6 +214,7 @@ public class GameServer {
                     //timer.cancel();
                     HashMap<String, String> params = new HashMap<>();
                     params.put("message", "start");
+                    serverState = "running";
                     broadcast(params);
                 }
             }

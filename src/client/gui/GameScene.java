@@ -15,6 +15,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class GameScene {
@@ -121,19 +122,6 @@ public class GameScene {
                         break;
                 }
             });
-
-            // *** Setting up players *************************************
-            //me = new Player(1, "Orville", 9, 4, "up");
-            //players.add(me);
-            //fields[9][4].setGraphic(new ImageView(hero_up));
-            //
-            //Player harry = new Player(2, "Harry", 14, 15, "up");
-            //players.add(harry);
-            //fields[14][15].setGraphic(new ImageView(hero_up));
-
-            // ************************************************************
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,6 +129,38 @@ public class GameScene {
 
     public Scene getScene() {
         return this.scene;
+    }
+
+    public void updatePlayers() {
+        HashMap<Integer, Player> players = this.gameEngine.getPlayers();
+        for (Player p : players.values()) {
+           this.updatePlayer(p);
+        }
+    }
+
+    public void updatePlayer(Player p) {
+        int posX = p.getPosX();
+        int posY = p.getPosY();
+        String direction = p.getDirection();
+
+        // Update player grid-pos and icon orientation
+        switch (direction) {
+            case "right":
+                fields[posX][posY].setGraphic(new ImageView(hero_right));
+                break;
+            case "left":
+                fields[posX][posY].setGraphic(new ImageView(hero_left));
+                break;
+            case "up":
+                fields[posX][posY].setGraphic(new ImageView(hero_up));
+                break;
+            case "down":
+                fields[posX][posY].setGraphic(new ImageView(hero_down));
+                break;
+        }
+
+        // Set current player grid-pos to display floor tile.
+        fields[p.getPrevPosX()][p.getPrevPosY()].setGraphic(new ImageView(image_floor));
     }
 
 
@@ -166,73 +186,16 @@ public class GameScene {
         // Get pre-move player position.
         int x = me.getPosX(), y = me.getPosY();
 
-        // --- Game logic ---------------------------------
-        if (board[y + delta_y].charAt(x + delta_x) == 'w') {
-            // --- Destination pos is a wall ---
-            // Ignore move request and award points.
-            me.addPoints(-1);
-        } else {
-            // Get any player that may occupy destination pos.
-            Player p = getPlayerAt(x + delta_x, y + delta_y);
-
-            if (p != null) {
-                // --- Destination pos is occupied ---
-                // Ignore move request and award points.
-                me.addPoints(10);
-                p.addPoints(-10);
-            } else {
-                // --- Destination pos is a floor tile ---
-                // Move is allowed.
-
-                // Award points.
-                me.addPoints(1);
-
-                // Set current player grid-pos to display floor tile.
-                fields[x][y].setGraphic(new ImageView(image_floor));
-
-                // Calc player position post-move.
-                x += delta_x;
-                y += delta_y;
-
-                // Update playerObj.
-                me.setPosX(x);
-                me.setPosY(y);
-
-            }
-        }
-        // ------------------------------------------------
 
 
-        // Update player grid-pos and icon orientation
-        if (direction.equals("right")) {
-            fields[x][y].setGraphic(new ImageView(hero_right));
-        } else if (direction.equals("left")) {
-            fields[x][y].setGraphic(new ImageView(hero_left));
-        } else if (direction.equals("up")) {
-            fields[x][y].setGraphic(new ImageView(hero_up));
-        } else if (direction.equals("down")) {
-            fields[x][y].setGraphic(new ImageView(hero_down));
-        }
+
+
 
 
     }
 
 
-    /**
-     * Returns player at passed grid-pos (if any), or null.
-     *
-     * @param x
-     * @param y
-     * @return
-     */
-    private Player getPlayerAt(int x, int y) {
-        for (Player p : players) {
-            if (p.getPosX() == x && p.getPosY() == y) {
-                return p;
-            }
-        }
-        return null;
-    }
+
 
 
 }

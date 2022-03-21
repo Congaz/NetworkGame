@@ -154,6 +154,9 @@ public class GameEngine {
                 case "start":
                     this.stateStart();
                     break;
+                case "running":
+                    this.stateRunning(params);
+                    break;
                 default:
                     throw new UnsupportedOperationException("Unknown state: " + this.state);
             }
@@ -169,21 +172,7 @@ public class GameEngine {
         return this.players;
     }
 
-    /**
-     * Request move action for myPlayerId.
-     *
-     * @param delta_x
-     * @param delta_y
-     * @param direction
-     */
-    public void requestMove(int delta_x, int delta_y, String direction) {
-        //this.broadcast(
-        //        "id:" + this.myPlayerId + ";" +
-        //                "posX:" + delta_x + ";" +
-        //                "posY:" + delta_y + ";" +
-        //                "direction:" + direction + ";"
-        //);
-    }
+
 
     // *** Pre-game logic ********************************************************************************************
 
@@ -263,6 +252,7 @@ public class GameEngine {
             this.stage.setScene(this.gameScene.getScene());
             forceWindowRefresh();
             this.gameScene.updateScore();
+            this.gameScene.updatePlayers();
         });
 
         // Update state
@@ -270,11 +260,96 @@ public class GameEngine {
     }
 
 
-    private void move(int playedId, int delta_x, int delta_y, String direction) {
+
+    // **** Game logic ************************************************************************************************
+
+     /**
+     * Request move action for myPlayerId.
+     *
+     * @param delta_x
+     * @param delta_y
+     * @param direction
+     */
+    public void requestMove(int delta_x, int delta_y, String direction) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("message", "requestMove");
+        params.put("id", String.valueOf(this.playerId));
+        params.put("delta_x", String.valueOf(delta_x));
+        params.put("delta_y", String.valueOf(delta_y));
+        params.put("direction", direction);
+        this.tcpClient.write(this.composeMessage(params));
 
     }
 
-    // ***************************************************************************************************************
+    private void stateRunning(HashMap<String, String> params) {
+        this.checkRequiredKeys(params, new String[]{"message", "id", "delta_x", "delta_y", "direction"});
+
+        switch (params.get("message")) {
+            case "move":
+                this.gameLogic(params);
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected message: " + params.get("message"));
+        }
+
+    }
+
+    private void gameLogic(HashMap<String, String> params) {
+
+        Player p = this.players.get(Integer.parseInt(params.get("id")));
+        p.setDirection(params.get("direction"));
+        int delta_x = Integer.parseInt(params.get("delta_x"));
+        int delta_y = Integer.parseInt(params.get("delta_y"));
+
+         // --- Game logic ---------------------------------
+        if (this.board[p.getPosY() + delta_y].charAt(p.getPosX() + delta_x) == 'w') {
+            // --- Destination pos is a wall ---
+            // Ignore move request and award points.
+            p.addPoints(-1);
+        }
+        else {
+            // Get any player that may occupy destination pos.
+            Player opponent = getPlayerAt(p.getPosX() + delta_x, p.getPosY() + delta_y);
+
+            if (opponent != null) {
+                // --- Destination pos is occupied ---
+                // Ignore move request and award points.
+                p.addPoints(10);
+                opponent.addPoints(-10);
+            }
+            else {
+                // --- Destination pos is a floor tile ---
+                // Move is allowed.
+                // Update position post-move.
+                p.setPosX(p.getPosX() + delta_x);
+                p.setPosY(p.getPosY() + delta_y);
+
+                // Award points.
+                p.addPoints(1);
+            }
+        }
+        // ------------------------------------------------
+
+        this.gameScene.updatePlayer(p);
+    }
+
+    /**
+     * Returns player at passed grid-pos (if any), or null.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private Player getPlayerAt(int x, int y) {
+        for (Player p : this.players.values()) {
+            if (p.getPosX() == x && p.getPosY() == y) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    // ****************************************************************************************************************
 
     /**
      * Creates board from passed string.

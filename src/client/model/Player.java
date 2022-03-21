@@ -7,6 +7,8 @@ public class Player {
 	private int points;
 	private int posX;
 	private int posY;
+	private int prevPosX;
+	private int prevPosY;
 	private String direction;
 	private boolean ready;
 
@@ -19,6 +21,7 @@ public class Player {
 		this.color = color;
 		this.ready = false;
 		this.points = 0;
+
 	}
 
 	public String toString() {
@@ -58,6 +61,7 @@ public class Player {
 	}
 
 	public void setPosX(int posX) {
+		this.prevPosX = this.posX;
 		this.posX = posX;
 	}
 
@@ -66,7 +70,16 @@ public class Player {
 	}
 
 	public void setPosY(int posY) {
+		this.prevPosY = this.posY;
 		this.posY = posY;
+	}
+
+	public int getPrevPosX() {
+		return this.prevPosX;
+	}
+
+	public int getPrevPosY() {
+		return this.prevPosY;
 	}
 
 	public String getDirection() {
