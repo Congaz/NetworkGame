@@ -24,7 +24,8 @@ public class GameScene {
 
     private static Image image_floor;
     private static Image image_wall;
-    private static Image hero_right, hero_left, hero_up, hero_down;
+    private static HashMap<String, Image> avatars;
+    private final static String[] colors = {"white", "purple", "blue", "yellow"};
 
     private Label[][] fields;
     private TextArea scoreList;
@@ -73,10 +74,17 @@ public class GameScene {
             image_wall = new Image(getClass().getResourceAsStream(imageDir + "wall4.png"), size, size, false, false);
             image_floor = new Image(getClass().getResourceAsStream(imageDir + "floor1.png"), size, size, false, false);
 
-            hero_right = new Image(getClass().getResourceAsStream(imageDir + "heroRight.png"), size, size, false, false);
-            hero_left = new Image(getClass().getResourceAsStream(imageDir + "heroLeft.png"), size, size, false, false);
-            hero_up = new Image(getClass().getResourceAsStream(imageDir + "heroUp.png"), size, size, false, false);
-            hero_down = new Image(getClass().getResourceAsStream(imageDir + "heroDown.png"), size, size, false, false);
+
+            String[] directions = {"up", "down", "left", "right"};
+            for (String color : colors) {
+                for (String direction : directions) {
+                    String filename = "hero_" + color + "_" + direction + ".png";
+                    avatars.put(
+                        color + "_" + direction,
+                        new Image(getClass().getResourceAsStream(imageDir + filename), size, size, false, false)
+                    );
+                }
+            }
 
             // Create and populate boardGrid
             GridPane boardGrid = new GridPane();
@@ -141,27 +149,14 @@ public class GameScene {
     public void updatePlayer(Player p) {
         int posX = p.getPosX();
         int posY = p.getPosY();
-        String direction = p.getDirection();
 
         // Set current player grid-pos to display floor tile.
         fields[p.getPrevPosX()][p.getPrevPosY()].setGraphic(new ImageView(image_floor));
 
-        // Update player grid-pos and icon orientation
-        switch (direction) {
-            case "right":
-                fields[posX][posY].setGraphic(new ImageView(hero_right));
-                break;
-            case "left":
-                fields[posX][posY].setGraphic(new ImageView(hero_left));
-                break;
-            case "up":
-                fields[posX][posY].setGraphic(new ImageView(hero_up));
-                break;
-            case "down":
-                fields[posX][posY].setGraphic(new ImageView(hero_down));
-                break;
-        }
+        String color = p.getColor();
+        String direction = p.getDirection();
 
+        fields[posX][posY].setGraphic(new ImageView(avatars.get(color + "_" + direction)));
     }
 
 

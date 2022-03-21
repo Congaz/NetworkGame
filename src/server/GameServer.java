@@ -14,7 +14,7 @@ public class GameServer {
     // --- Player ---
     private final HashMap<Integer, PlayerThread> playerThreads = new HashMap<Integer, PlayerThread>();
     private final String[] directions = {"up", "down", "left", "right"};
-    private ArrayList<String> myArrayList = new ArrayList<>();
+    private final static String[] colors = {"white", "purple", "blue", "yellow"};
 
     // --- Board ---
     private String[] board;
@@ -48,7 +48,7 @@ public class GameServer {
                 // --- Create start params for player ---
                 int[] startPos = getRandomStartPos();
                 String direction = getRandomStartDirection();
-                String color = "white"; // HARDCODED FOR THE TIME BEING.
+                String color = GameServer.colors[this.getRandomSignedInt(0, GameServer.colors.length - 1)];
 
                 // --- Create player thread ---
                 PlayerThread pt = new PlayerThread(this, connSocket, startPos[0], startPos[1], direction, color);
