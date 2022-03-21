@@ -330,7 +330,9 @@ public class GameEngine {
         }
         // ------------------------------------------------
 
-        this.gameScene.updatePlayer(p);
+        Platform.runLater(() -> {
+            this.gameScene.updatePlayer(p);
+        });
     }
 
     /**
