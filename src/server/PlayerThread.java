@@ -146,7 +146,7 @@ public class PlayerThread extends Thread {
     public HashMap<String, String> createUpdatePackage() {
         HashMap<String, String> params = new HashMap<>();
         params.put("id", String.valueOf(this.playerId));
-        params.put("playerName", this.playerName);
+        params.put("name", this.playerName);
         params.put("posX", String.valueOf(this.posX));
         params.put("posY", String.valueOf(this.posY));
         params.put("direction", this.direction);
