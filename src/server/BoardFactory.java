@@ -151,60 +151,15 @@ public class BoardFactory {
                     "w        ww        w",
                     "w     wwwwwwww     w",
                     "w                  w",
-                    "w      wwwwwww     w",
+                    "w      wwwwww      w",
                     "w     w            w",
                     "w     wwwwwwww     w",
                     "w            w     w",
-                    "w     wwwwwww      w",
+                    "w      wwwwww      w",
                     "w                  w",
                     "wwwwwwwwwwwwwwwwwwww"
                 };
-             case 3:
-                return new String[]{
-                    "wwwwwwwwwwwwwwwwwwww",
-                    "w                  w",
-                    "w     w     w      w",
-                    "w     w   ww       w",
-                    "w     wwwww        w",
-                    "w     w    ww      w",
-                    "w     w      w     w",
-                    "w                  w",
-                    "w     wwwwwwww     w",
-                    "w        ww        w",
-                    "w        ww        w",
-                    "w     wwwwwwww     w",
-                    "w                  w",
-                    "w     w      w     w",
-                    "w     ww    ww     w",
-                    "w     w  ww  w     w",
-                    "w     w      w     w",
-                    "w     w      w     w",
-                    "w                  w",
-                    "wwwwwwwwwwwwwwwwwwww"
-                };
-            case 4:
-                return new String[]{
-                    "wwwwwwwwwwwwwwwwwwww",
-                    "w                  w",
-                    "w     w      w     w",
-                    "w     ww    ww     w",
-                    "w     w  ww  w     w",
-                    "w     w      w     w",
-                    "w     w      w     w",
-                    "w                  w",
-                    "w        ww        w",
-                    "w     ww    ww     w",
-                    "w     wwwwwwww     w",
-                    "w     w      w     w",
-                    "w                  w",
-                    "w     ww     ww    w",
-                    "w      ww   ww     w",
-                    "w        www       w",
-                    "w      ww   ww     w",
-                    "w     ww     ww    w",
-                    "w                  w",
-                    "wwwwwwwwwwwwwwwwwwww"
-                };
+
             case 999:
                 // Template
                 return new String[]{
