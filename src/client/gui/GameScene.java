@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import server.GameServer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ public class GameScene {
     public GameScene(GameEngine gameEngine, String[] board) {
 
         try {
+            GameScene.avatars = new HashMap<>();
             this.gameEngine = gameEngine;
 
             GridPane grid = new GridPane();
@@ -74,12 +76,11 @@ public class GameScene {
             image_wall = new Image(getClass().getResourceAsStream(imageDir + "wall4.png"), size, size, false, false);
             image_floor = new Image(getClass().getResourceAsStream(imageDir + "floor1.png"), size, size, false, false);
 
-
             String[] directions = {"up", "down", "left", "right"};
-            for (String color : colors) {
+            for (String color : GameScene.colors) {
                 for (String direction : directions) {
                     String filename = "hero_" + color + "_" + direction + ".png";
-                    avatars.put(
+                    GameScene.avatars.put(
                         color + "_" + direction,
                         new Image(getClass().getResourceAsStream(imageDir + filename), size, size, false, false)
                     );

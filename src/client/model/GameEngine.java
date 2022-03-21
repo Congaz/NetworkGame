@@ -69,6 +69,8 @@ public class GameEngine {
         TcpResponse listener = (String message) -> this.fromServer(message);
         this.tcpClient = new TcpClient(listener);
 
+        //this.stateStart();
+
    }
 
     public int getPlayerId() {
