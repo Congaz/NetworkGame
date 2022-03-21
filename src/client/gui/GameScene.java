@@ -143,6 +143,9 @@ public class GameScene {
         int posY = p.getPosY();
         String direction = p.getDirection();
 
+        // Set current player grid-pos to display floor tile.
+        fields[p.getPrevPosX()][p.getPrevPosY()].setGraphic(new ImageView(image_floor));
+
         // Update player grid-pos and icon orientation
         switch (direction) {
             case "right":
@@ -159,8 +162,6 @@ public class GameScene {
                 break;
         }
 
-        // Set current player grid-pos to display floor tile.
-        fields[p.getPrevPosX()][p.getPrevPosY()].setGraphic(new ImageView(image_floor));
     }
 
 
