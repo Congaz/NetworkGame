@@ -241,7 +241,7 @@ public class ConnectScene {
         btnConnect.setDisable(true);
 
         try {
-            // Throws Exception in connecntion failure.
+            // Throws Exception on connection failure.
             this.gameEngine.connectAction(serverIp, playerName);
             // Connnection established.
             btnStart.setDisable(false);
@@ -256,8 +256,8 @@ public class ConnectScene {
             btnConnect.setDisable(false);
         }
         catch (UnsupportedOperationException | IOException e) {
-            // --- Something went wront that we can not recover from ---
-            // UnsupportedOperationException: Connection already established ---
+            // --- Something went wrong that we can not recover from ---
+            // UnsupportedOperationException: Connection already established
             // IOException: Failure to create I/O streams
             Alert alert = AlertFactory.unrecoverableError(e);
             alert.showAndWait();

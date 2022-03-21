@@ -36,19 +36,19 @@ public class PlayerThread extends Thread {
         this.posY = posY;
         this.direction = direction;
         this.color = color;
-        this.playerName = "unknown";
+        this.playerName = "Unknown";
         this.ready = false;
 
         // Assign id
         this.playerId = PlayerThread.nextId++;
 
         // Get ip
-        InetSocketAddress socketAddress = (InetSocketAddress) connSocket.getRemoteSocketAddress();
+        InetSocketAddress socketAddress = (InetSocketAddress) this.connSocket.getRemoteSocketAddress();
         this.ip = socketAddress.getAddress().getHostAddress();
 
         // Create in/out streams
         try {
-            this.inFromClient = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
+            this.inFromClient = new BufferedReader(new InputStreamReader(this.connSocket.getInputStream()));
             this.outToClient = new DataOutputStream(connSocket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();

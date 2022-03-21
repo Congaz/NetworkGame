@@ -69,15 +69,7 @@ public class GameEngine {
         TcpResponse listener = (String message) -> this.fromServer(message);
         this.tcpClient = new TcpClient(listener);
 
-        //this.connectScene.updateCountdown(5);
-
-        //Alert alert = new Alert(Alert.AlertType.ERROR, "Are you sure you want to format your system?");
-        //alert.showAndWait();
-        //Optional<ButtonType> result = alert.showAndWait();
-        //if (result.isPresent() && result.get() == ButtonType.OK) {
-        //    System.out.println("OK");
-        //}
-    }
+   }
 
     public int getPlayerId() {
         return this.playerId;
@@ -223,15 +215,9 @@ public class GameEngine {
         // Send to server that we are connected along with our id and name.
         HashMap<String, String> paramsOut = new HashMap<>();
         paramsOut.put("message", "connected");
-        //paramsOut.put("broadcastExcludeId", String.valueOf(this.id)); // Exclude ourselves from broadcast.
-        //paramsOut.put("broadcastExcludeId", String.valueOf(-1));
-        paramsOut.put("broadcast", "false");
+        paramsOut.put("broadcast", "false"); // Prevents server from broadcasting message.
         paramsOut.put("id", String.valueOf(this.playerId));
         paramsOut.put("name", this.playerName);
-        //paramsOut.put("posX", paramsIn.get("posX"));
-        //paramsOut.put("posY", paramsIn.get("posY"));
-        //paramsOut.put("direction", paramsIn.get("direction"));
-        //paramsOut.put("color", paramsIn.get("color"));
         this.writeServer(paramsOut);
     }
 
@@ -253,10 +239,10 @@ public class GameEngine {
                 // Create foreign player object
                 this.createPlayer(params);
             }
-        } else if (params.get("message").equals("ready")) {
+        }
+        else if (params.get("message").equals("ready")) {
             // --- Player has clicked start ---
-            String[] requiredKeys = {"id"};
-            this.checkRequiredKeys(params, requiredKeys);
+            this.checkRequiredKeys(params, new String[]{"id"});
 
             Player p = this.players.get(Integer.parseInt(params.get("id")));
             if (p == null) {
@@ -441,8 +427,8 @@ public class GameEngine {
     private void verifyBoardSize(String[] board) throws IllegalStateException {
         if (board.length != this.BOARD_NUM_OF_ROWS) {
             throw new IllegalStateException(
-                    "Board is invalid. " +
-                    "Rows required: " + this.BOARD_NUM_OF_ROWS + " Rows present: " + board.length
+                "Board is invalid. " +
+                "Rows required: " + this.BOARD_NUM_OF_ROWS + " Rows present: " + board.length
             );
         } else {
             // Check length of each row

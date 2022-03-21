@@ -48,17 +48,17 @@ public class TcpClient {
         }
         catch (IllegalThreadStateException e) {
             // --- TCPCLientThreadRead already started ---
-            //e.printStackTrace();
+            // Handled by ConnectScene class.
             throw e;
         }
         catch (UnknownHostException e) {
             // --- IP adress incorrect/non-responsive ---
-            //e.printStackTrace();
+             // Handled by ConnectScene class.
             throw e;
         }
         catch (IOException e) {
             // --- Failure to create I/O streams ---
-            //e.printStackTrace();
+             // Handled by ConnectScene class.
             throw e;
         }
 

@@ -36,11 +36,24 @@ public class AlertFactory {
         return alert;
     }
 
+     public static Alert serverConnectionLost(Exception e) {
+        logAndPrint(e);
+        // --- Create and return alert ---
+        String txt = "";
+        txt += "To prevent s*** from a fan-ward trajectory, application will now shut down.";
+        Alert alert = new Alert(Alert.AlertType.ERROR, txt);
+        String headerText = "";
+        headerText += "The server apparently decided it had better things to do...\n";
+        alert.setHeaderText(headerText);
+        alert.setTitle("Server Connection Lost");
+        return alert;
+    }
+
      public static Alert serverError(Exception e) {
         logAndPrint(e);
         // --- Create and return alert ---
         String txt = "";
-        txt += "As we don't know why things went tits up, application will shut down.";
+        txt += "As we don't know why things went tits up, application will now shut down.";
         Alert alert = new Alert(Alert.AlertType.ERROR, txt);
         String headerText = "";
         headerText += "Server returned invalid or malformed data\n";

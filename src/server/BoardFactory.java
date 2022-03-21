@@ -141,10 +141,10 @@ public class BoardFactory {
                     "wwwwwwwwwwwwwwwwwwww",
                     "w                  w",
                     "w     wwwwww       w",
-                    "w     w      w     w",
+                    "w     w     ww     w",
                     "w     w       w    w",
-                    "w     w      w     w",
-                    "w     wwwww w      w",
+                    "w     w     ww     w",
+                    "w     wwwwww       w",
                     "w                  w",
                     "w     wwwwwwww     w",
                     "w        ww        w",
@@ -159,7 +159,6 @@ public class BoardFactory {
                     "w                  w",
                     "wwwwwwwwwwwwwwwwwwww"
                 };
-
             case 999:
                 // Template
                 return new String[]{
@@ -198,8 +197,8 @@ public class BoardFactory {
     private static void verifyBoardSize(String[] board, int boardIndex) throws IllegalStateException {
         if (board.length != NUM_OF_ROWS) {
             throw new IllegalStateException(
-                    "Board (index #" + boardIndex + ") is invalid. " +
-                            "Rows required: " + NUM_OF_ROWS + " Rows present: " + board.length
+                "Board (index #" + boardIndex + ") is invalid. " +
+                "Rows required: " + NUM_OF_ROWS + " Rows present: " + board.length
             );
         } else {
             // Check length of each row
@@ -215,9 +214,9 @@ public class BoardFactory {
             // Check if board passed col inspection.
             if (!passed) {
                 throw new IllegalStateException(
-                        "Board (index #" + boardIndex + ") is invalid. " +
-                                "Cols required: " + NUM_OF_COLS + " " +
-                                "Cols present in row(" + (i + 1) + "): " + board[i].length()
+                    "Board (index #" + boardIndex + ") is invalid. " +
+                    "Cols required: " + NUM_OF_COLS + " " +
+                    "Cols present in row(" + (i + 1) + "): " + board[i].length()
                 );
             }
         }
