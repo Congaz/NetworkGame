@@ -61,6 +61,7 @@ public class GameServer {
                 params.put("posX", String.valueOf(startPos[0]));
                 params.put("posY", String.valueOf(startPos[1]));
                 params.put("direction", direction);
+                params.put("color", color);
                 params.put("board", BoardFactory.convertBoard2String(this.board));
                 pt.write(params);
 
