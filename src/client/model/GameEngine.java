@@ -114,7 +114,7 @@ public class GameEngine {
      *
      * @param message
      */
-    public void fromServer(String message) throws RuntimeException {
+    public synchronized void fromServer(String message) throws RuntimeException {
         // Parse message. Require that "message" key is present.
         HashMap<String, String> params = this.parseFromServer(message, new String[]{"message"});
 
@@ -332,6 +332,7 @@ public class GameEngine {
 
         Platform.runLater(() -> {
             this.gameScene.updatePlayer(p);
+            this.gameScene.updateScore();
         });
     }
 
