@@ -17,6 +17,8 @@ import java.util.HashMap;
 public class ConnectScene {
 
     private GameEngine gameEngine;
+    private String presetIp;
+    private String presetName;
 
     // --- Input grid elements ---
     private TextField txtfIp;
@@ -34,6 +36,8 @@ public class ConnectScene {
 
     public ConnectScene(GameEngine gameEngine) {
         this.gameEngine = gameEngine;
+        this.presetIp = "192.168.0.100";
+        this.presetName = "Mig";
     }
 
     public Scene createScene() {
@@ -67,10 +71,16 @@ public class ConnectScene {
         }
 
         HashMap<Integer, Player> players = this.gameEngine.getPlayers();
+        int clientId = this.gameEngine.getPlayerId();
 
-        // Add row pr. player.
+        // Make sure this player is first
+        this.addPlayerRow(players.get(clientId));
+
+        // --- Add row pr. player ---
         for (Player p : players.values()) {
-            this.addPlayerRow(p);
+            if (p.getPlayerId() != clientId) {
+                this.addPlayerRow(p);
+            }
         }
     }
 
@@ -99,15 +109,13 @@ public class ConnectScene {
         // --- Game server IP ---
         Label lblIp = new Label("Game Server IP: ");
         grid.add(lblIp, 0, 0);
-        String testIp = "192.168.0.100";
-        this.txtfIp = new TextField(testIp);
+        this.txtfIp = new TextField(this.presetIp);
         grid.add(this.txtfIp, 1, 0);
 
         // --- Player name ---
         Label lblName = new Label("Player name: ");
         grid.add(lblName, 0, 1);
-        String testName = "Mig";
-        this.txtfName = new TextField(testName);
+        this.txtfName = new TextField(this.presetName);
         grid.add(this.txtfName, 1, 1);
 
         // --- Connect btn ---

@@ -24,8 +24,8 @@ public class GameEngine {
     private GameScene gameScene;
 
     // --- This player ---
-    private int id;
-    private String name;
+    private int playerId;
+    private String playerName;
 
     // --- Game vars ---
     private String state;
@@ -79,6 +79,14 @@ public class GameEngine {
         //}
     }
 
+    public int getPlayerId() {
+        return this.playerId;
+    }
+
+    public String getPlayerName() {
+        return this.playerName;
+    }
+
     // *** Methods invoked by Gui ********************************************************************************
 
     /**
@@ -90,7 +98,7 @@ public class GameEngine {
      * @throws Exception
      */
     public void connectAction(String serverIp, String playerName) throws IOException {
-        this.name = playerName;
+        this.playerName = playerName;
         // --- Connect to server ---
         // Responses from server will invoke fromServer() method.
         this.tcpClient.connect(serverIp);
@@ -103,7 +111,7 @@ public class GameEngine {
     public void readyAction() {
         HashMap<String, String> params = new HashMap<>();
         params.put("message", "ready");
-        params.put("id", String.valueOf(this.id));
+        params.put("id", String.valueOf(this.playerId));
         this.writeServer(params);
     }
 
@@ -208,9 +216,9 @@ public class GameEngine {
         this.board = this.convertString2Board(paramsIn.get("board"));
 
         // --- Create this player object ---
-        paramsIn.put("name", this.name); // Add name to params.
+        paramsIn.put("name", this.playerName); // Add name to params.
         this.createPlayer(paramsIn);
-        this.id = Integer.parseInt(paramsIn.get("id"));
+        this.playerId = Integer.parseInt(paramsIn.get("id"));
 
         // Send to server that we are connected along with our id and name.
         HashMap<String, String> paramsOut = new HashMap<>();
@@ -218,8 +226,8 @@ public class GameEngine {
         //paramsOut.put("broadcastExcludeId", String.valueOf(this.id)); // Exclude ourselves from broadcast.
         //paramsOut.put("broadcastExcludeId", String.valueOf(-1));
         paramsOut.put("broadcast", "false");
-        paramsOut.put("id", String.valueOf(this.id));
-        paramsOut.put("name", this.name);
+        paramsOut.put("id", String.valueOf(this.playerId));
+        paramsOut.put("name", this.playerName);
         //paramsOut.put("posX", paramsIn.get("posX"));
         //paramsOut.put("posY", paramsIn.get("posY"));
         //paramsOut.put("direction", paramsIn.get("direction"));
@@ -241,7 +249,7 @@ public class GameEngine {
             this.checkRequiredKeys(params, requiredKeys);
 
             // Fail safe: Ignore our own player id
-            if (Integer.parseInt(params.get("id")) != this.id) {
+            if (Integer.parseInt(params.get("id")) != this.playerId) {
                 // Create foreign player object
                 this.createPlayer(params);
             }

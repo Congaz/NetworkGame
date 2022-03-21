@@ -27,8 +27,7 @@ public class BoardFactory {
                 createBoardByIndex(index++);
             }
             catch (IllegalArgumentException e) {
-                // Thrown when index is out of bounds.
-                // No more boards to check.
+                // Thrown when index is out of bounds = No more boards to check.
                 finished = true;
             }
             catch (IllegalStateException e) {
@@ -137,7 +136,76 @@ public class BoardFactory {
                     "w                  w",
                     "wwwwwwwwwwwwwwwwwwww"
                 };
-            case 2:
+             case 2:
+                return new String[]{
+                    "wwwwwwwwwwwwwwwwwwww",
+                    "w                  w",
+                    "w     wwwwww       w",
+                    "w     w      w     w",
+                    "w     w       w    w",
+                    "w     w      w     w",
+                    "w     wwwww w      w",
+                    "w                  w",
+                    "w     wwwwwwww     w",
+                    "w        ww        w",
+                    "w        ww        w",
+                    "w     wwwwwwww     w",
+                    "w                  w",
+                    "w      wwwwwww     w",
+                    "w     w            w",
+                    "w     wwwwwwww     w",
+                    "w            w     w",
+                    "w     wwwwwww      w",
+                    "w                  w",
+                    "wwwwwwwwwwwwwwwwwwww"
+                };
+             case 3:
+                return new String[]{
+                    "wwwwwwwwwwwwwwwwwwww",
+                    "w                  w",
+                    "w     w     w      w",
+                    "w     w   ww       w",
+                    "w     wwwww        w",
+                    "w     w    ww      w",
+                    "w     w      w     w",
+                    "w                  w",
+                    "w     wwwwwwww     w",
+                    "w        ww        w",
+                    "w        ww        w",
+                    "w     wwwwwwww     w",
+                    "w                  w",
+                    "w     w      w     w",
+                    "w     ww    ww     w",
+                    "w     w  ww  w     w",
+                    "w     w      w     w",
+                    "w     w      w     w",
+                    "w                  w",
+                    "wwwwwwwwwwwwwwwwwwww"
+                };
+            case 4:
+                return new String[]{
+                    "wwwwwwwwwwwwwwwwwwww",
+                    "w                  w",
+                    "w     w      w     w",
+                    "w     ww    ww     w",
+                    "w     w  ww  w     w",
+                    "w     w      w     w",
+                    "w     w      w     w",
+                    "w                  w",
+                    "w        ww        w",
+                    "w     ww    ww     w",
+                    "w     wwwwwwww     w",
+                    "w     w      w     w",
+                    "w                  w",
+                    "w     ww     ww    w",
+                    "w      ww   ww     w",
+                    "w        www       w",
+                    "w      ww   ww     w",
+                    "w     ww     ww    w",
+                    "w                  w",
+                    "wwwwwwwwwwwwwwwwwwww"
+                };
+            case 999:
                 // Template
                 return new String[]{
                     "wwwwwwwwwwwwwwwwwwww",

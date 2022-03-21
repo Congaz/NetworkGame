@@ -96,11 +96,13 @@ public class GameServer {
                 throw new NoSuchElementException("Unable to retrieve player object from id: " + params.get("id"));
             }
             pt.setPlayerName(params.get("name"));
+
             // Players presence must now be broadcast to all but the player that sent the message.
             HashMap<String , String> paramsOut = pt.createUpdatePackage();
             paramsOut.put("message", "connected");
             paramsOut.put("broadcastExcludeId", String.valueOf(pt.getPlayerId()));
             this.broadcast(paramsOut);
+
             // The player that sent the message must now be updated on all, already connected players.
             Set<Integer> idSet = this.playerThreads.keySet();
             for (int id : idSet) {
@@ -163,9 +165,6 @@ public class GameServer {
      * @param params
      */
     private void stateAcceptConnections(HashMap<String, String> params) throws IllegalArgumentException {
-        System.out.println("stateAcceptConnections");
-        System.out.println(params);
-
         this.checkRequiredKeys(params, new String[]{"message"});
 
        if (params.get("message").equals("ready")) {
@@ -184,8 +183,7 @@ public class GameServer {
             }
 
             if (ready) {
-                // All players have clicked start.
-                // Begin countdown to game start.
+                // All players have clicked start. Begin countdown to game start.
                 this.serverState = "countdown";
                 this.stateCountdown();
             }
@@ -196,7 +194,6 @@ public class GameServer {
      * Performs countdown to game start.
      */
     private void stateCountdown() {
-
         TimerTask countdownTask = new TimerTask() {
             @Override
             public void run() {
@@ -217,8 +214,6 @@ public class GameServer {
 
         Timer timer = new Timer("Timer");
         timer.scheduleAtFixedRate(countdownTask, 0, 1000);
-
-
     }
 
     // ****************************************************************************************************************
@@ -288,8 +283,8 @@ public class GameServer {
      */
     public HashMap<String, String> parseMessage(String message) {
         HashMap<String, String> params = new HashMap<String, String>();
-
         String[] pairs = message.split(";");
+
         for (String pair : pairs) {
             String[] tmp = pair.split(":");
             params.put(tmp[0], tmp[1]);
