@@ -301,6 +301,7 @@ public class GameEngine {
         int delta_x = Integer.parseInt(params.get("delta_x"));
         int delta_y = Integer.parseInt(params.get("delta_y"));
 
+        Platform.runLater(() -> {
          // --- Game logic ---------------------------------
         if (this.board[p.getPosY() + delta_y].charAt(p.getPosX() + delta_x) == 'w') {
             // --- Destination pos is a wall ---
@@ -329,8 +330,6 @@ public class GameEngine {
             }
         }
         // ------------------------------------------------
-
-        Platform.runLater(() -> {
             this.gameScene.updatePlayer(p);
             this.gameScene.updateScore();
         });
