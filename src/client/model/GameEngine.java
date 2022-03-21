@@ -118,6 +118,7 @@ public class GameEngine {
         // Parse message. Require that "message" key is present.
         HashMap<String, String> params = this.parseFromServer(message, new String[]{"message"});
 
+
         // *** TEST ***********
         if (true) {
             System.out.println("--- Client ---");

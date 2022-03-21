@@ -86,7 +86,7 @@ public class GameServer {
      * @param params
      */
     public synchronized void fromPlayer(HashMap<String, String> params) throws RuntimeException {
-        this.checkRequiredKeys(params, new String[]{"mesaage"});
+        this.checkRequiredKeys(params, new String[]{"message"});
 
         if (params.get("message").equals("connected")) {
             // Player acknowledges connection. We expect players id and player name to be included.
@@ -98,14 +98,17 @@ public class GameServer {
             pt.setPlayerName(params.get("name"));
             // Players presence must now be broadcast to all but the player that sent the message.
             HashMap<String , String> paramsOut = pt.createUpdatePackage();
+            paramsOut.put("message", "connected");
             paramsOut.put("broadcastExcludeId", String.valueOf(pt.getPlayerId()));
             this.broadcast(paramsOut);
             // The player that sent the message must now be updated on all, already connected players.
             Set<Integer> idSet = this.playerThreads.keySet();
             for (int id : idSet) {
-                if (id != pt.getId()) {
+                if (id != pt.getPlayerId()) {
                     PlayerThread oldPlayer = this.playerThreads.get(id);
-                    pt.write(oldPlayer.createUpdatePackage());
+                    HashMap<String, String> paramsConnected = oldPlayer.createUpdatePackage();
+                    paramsConnected.put("message", "connected");
+                    pt.write(paramsConnected);
                 }
             }
         }
@@ -122,8 +125,6 @@ public class GameServer {
         int excludeId = -1;
         if (params.containsKey("broadcastExcludeId")) {
             excludeId = Integer.parseInt(params.get("broadcastExcludeId"));
-            // Remove from params (no need to include in broadcast).
-            params.remove("broadcastExcludeId");
         }
 
         // Broadcast
@@ -162,7 +163,10 @@ public class GameServer {
      * @param params
      */
     private void stateAcceptConnections(HashMap<String, String> params) throws IllegalArgumentException {
-        this.checkRequiredKeys(params, new String[]{"mesaage"});
+        System.out.println("stateAcceptConnections");
+        System.out.println(params);
+
+        this.checkRequiredKeys(params, new String[]{"message"});
 
        if (params.get("message").equals("ready")) {
             // --- Player has clicked start ---
