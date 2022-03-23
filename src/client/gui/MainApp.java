@@ -11,8 +11,8 @@ public class MainApp extends Application {
 
 	// --- Gui params ---
 	private static final int size = 20;
-	private static final int scene_width = size * 20 + 200;
-	private static final int scene_height = size * 20 + 90;
+	private static final int scene_width = size * 20 + 200; // 200
+	private static final int scene_height = size * 20 + 90; // 90
 
 
 	@Override

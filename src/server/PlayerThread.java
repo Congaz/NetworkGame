@@ -151,6 +151,7 @@ public class PlayerThread extends Thread {
         params.put("posY", String.valueOf(this.posY));
         params.put("direction", this.direction);
         params.put("color", this.color);
+        params.put("ready", String.valueOf(this.ready));
         return params;
     }
 

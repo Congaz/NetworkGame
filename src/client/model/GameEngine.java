@@ -8,6 +8,7 @@ import client.model.network.TcpClient;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import server.BoardFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -46,30 +47,32 @@ public class GameEngine {
 
         // --- State ---
         this.state = "connect";
+        boolean network = true;
 
         // *** TEST ********************
         if (false) {
+            network = false;
+            this.board = BoardFactory.createRandomBoard();
             Player p;
-            int id = 1;
-            p = new Player(id++, "Max", 0, 0, "up", "white");
-            this.players.put(id, p);
-            p = new Player(id++, "Kim", 0, 0, "up", "white");
-            this.players.put(id, p);
-            p = new Player(id++, "Lars", 0, 0, "up", "white");
-            this.players.put(id, p);
-            p = new Player(id++, "Steffen", 0, 0, "up", "white");
-            this.players.put(id, p);
-            p = new Player(id++, "Line", 0, 0, "up", "white");
-            this.players.put(id, p);
-            this.connectScene.updatePlayers();
+            int id;
+            id = 0;
+            this.players.put(id, new Player(++id, "Michael", 1, 1, "up", "blue", true));
+            this.players.put(id, new Player(++id, "Kim", 2, 1, "up", "yellow", true));
+            this.players.put(id, new Player(++id, "Max", 3, 1, "up", "white", true));
+            this.players.put(id, new Player(++id, "Lars", 4, 1, "up", "red", true));
+            this.players.put(id, new Player(++id, "Line", 5, 1, "up", "purple", true));
+
+            this.stateStart();
+
         }
         // *****************************
 
         // --- Network ---
-        TcpResponse listener = (String message) -> this.fromServer(message);
-        this.tcpClient = new TcpClient(listener);
+        if (network) {
+            TcpResponse listener = (String message) -> this.fromServer(message);
+            this.tcpClient = new TcpClient(listener);
+        }
 
-        //this.stateStart();
 
    }
 
@@ -220,21 +223,21 @@ public class GameEngine {
      * @throws IllegalArgumentException
      */
     private void stateAcceptPlayer(HashMap<String, String> params) throws RuntimeException {
+        this.checkRequiredKeys(params, new String[]{"id"});
+
         if (params.get("message").equals("connected")) {
             // --- Player has connected ---
-            String[] requiredKeys = {"id", "name", "posX", "posY", "direction", "color"};
-            this.checkRequiredKeys(params, requiredKeys);
-
             // Fail safe: Ignore our own player id
             if (Integer.parseInt(params.get("id")) != this.playerId) {
                 // Create foreign player object
                 this.createPlayer(params);
             }
+            else {
+                throw new IllegalArgumentException("Player object already created for passed player id: " + params.get("id"));
+            }
         }
         else if (params.get("message").equals("ready")) {
             // --- Player has clicked start ---
-            this.checkRequiredKeys(params, new String[]{"id"});
-
             Player p = this.players.get(Integer.parseInt(params.get("id")));
             if (p == null) {
                 throw new NoSuchElementException("Unable to retrieve player object from id: " + params.get("id"));
@@ -280,7 +283,6 @@ public class GameEngine {
         params.put("delta_y", String.valueOf(delta_y));
         params.put("direction", direction);
         this.tcpClient.write(this.composeMessage(params));
-
     }
 
     private void stateRunning(HashMap<String, String> params) {
@@ -297,7 +299,6 @@ public class GameEngine {
     }
 
     private void gameLogic(HashMap<String, String> params) {
-
         Player p = this.players.get(Integer.parseInt(params.get("id")));
         p.setDirection(params.get("direction"));
         int delta_x = Integer.parseInt(params.get("delta_x"));
@@ -376,7 +377,7 @@ public class GameEngine {
         try {
             // --- Verify board size ---
             // Throws IllegalStateException if board is invalid.
-            this.verifyBoardSize(board);
+            this.verifyBoardIntegrity(board);
         }
         catch (IllegalStateException e) {
             // For now we show and alert and exit app.
@@ -411,7 +412,7 @@ public class GameEngine {
      */
     private void createPlayer(HashMap<String, String> params) throws IllegalArgumentException {
         // --- Check for required keys ---
-        String[] requiredKeys = {"id", "name", "posX", "posY", "direction", "color"};
+        String[] requiredKeys = {"id", "name", "posX", "posY", "direction", "color", "ready"};
         this.checkRequiredKeys(params, requiredKeys);
         // --- Prepare values ---
         int id = Integer.parseInt(params.get("id"));
@@ -420,8 +421,9 @@ public class GameEngine {
         int posY = Integer.parseInt(params.get("posY"));
         String direction = params.get("direction");
         String color = params.get("color");
+        boolean ready = Boolean.parseBoolean(params.get("ready"));
         // --- Create player ---
-        Player p = new Player(id, name, posX, posY, direction, color);
+        Player p = new Player(id, name, posX, posY, direction, color, ready);
         // Add to players hashMap.
         this.players.put(id, p);
     }
@@ -503,14 +505,15 @@ public class GameEngine {
      * @param board
      * @throws IllegalStateException
      */
-    private void verifyBoardSize(String[] board) throws IllegalStateException {
+    private void verifyBoardIntegrity(String[] board) throws IllegalStateException {
         if (board.length != this.BOARD_NUM_OF_ROWS) {
             throw new IllegalStateException(
                 "Board is invalid. " +
                 "Rows required: " + this.BOARD_NUM_OF_ROWS + " Rows present: " + board.length
             );
-        } else {
-            // Check length of each row
+        }
+        else {
+            // Check num of cols (length of each row)
             boolean passed = true;
             int i = 0;
             while (i < board.length && passed) {

@@ -61,13 +61,37 @@
     -fx-font-weight: bold;
 }
 
-.playerPaneRowEven {
+.playerPaneRow.even {
+    -fx-background-color: #f0f0f0;
+}
+
+.playerPaneRow.odd {
     -fx-background-color: #f5f5f5;
 }
 
-.playerPaneRowOdd {
+/* --- Player colors -------------------- */
+
+.playerPaneRow.blue {
+    -fx-background-color: #1f6cb5;
+}
+
+.playerPaneRow.purple {
+    -fx-background-color: #bf60a5;
+}
+
+.playerPaneRow.red {
+    -fx-background-color: #ed2024;
+}
+
+.playerPaneRow.white {
     -fx-background-color: #ffffff;
 }
+
+.playerPaneRow.yellow {
+    -fx-background-color: #f7ec28;
+}
+
+
 
 
 

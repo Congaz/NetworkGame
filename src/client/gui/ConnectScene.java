@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class ConnectScene {
 
@@ -36,7 +37,7 @@ public class ConnectScene {
 
     public ConnectScene(GameEngine gameEngine) {
         this.gameEngine = gameEngine;
-        this.presetIp = "10.10.138.222";
+        this.presetIp = "127.0.0.1";
         this.presetName = "Mig";
     }
 
@@ -171,11 +172,9 @@ public class ConnectScene {
         ColumnConstraints col1 = new ColumnConstraints();
         ColumnConstraints col2 = new ColumnConstraints();
         ColumnConstraints col3 = new ColumnConstraints();
-
-        col1.setPercentWidth(50);
-        col2.setPercentWidth(25);
+        col1.setPercentWidth(55);
+        col2.setPercentWidth(20);
         col3.setPercentWidth(25);
-
         grid.getColumnConstraints().addAll(col1, col2, col3);
 
         Pane pn;
@@ -209,25 +208,29 @@ public class ConnectScene {
 
         Pane pn;
         int col = 0;
-        String parity = row % 2 == 0 ? "Even" : "Odd";
+        String parity = row % 2 == 0 ? "even" : "odd";
         // --- Player info ---
         pn = new Pane();
         Label lblName = new Label(p.getPlayerName());
         pn.getChildren().add(lblName);
-        pn.getStyleClass().add("playerPaneRow" + parity);
+        pn.getStyleClass().add("playerPaneRow");
+        pn.getStyleClass().add(parity);
         grid.add(pn, col++, row);
 
         pn = new Pane();
-        Label lblColor = new Label(p.getColor());
+        Label lblColor = new Label(this.capitalize(p.getColor()));
         pn.getChildren().add(lblColor);
-        pn.getStyleClass().add("playerPaneRow" + parity);
+        pn.getStyleClass().add("playerPaneRow");
+        pn.getStyleClass().add(parity);
+        pn.getStyleClass().add(p.getColor());
         grid.add(pn, col++, row);
 
         pn = new Pane();
-        String state = p.isReady() ? "OK" : "pending";
+        String state = p.isReady() ? "OK" : "Pending";
         Label lblState = new Label(state);
         pn.getChildren().add(lblState);
-        pn.getStyleClass().add("playerPaneRow" + parity);
+        pn.getStyleClass().add("playerPaneRow");
+        pn.getStyleClass().add(parity);
         grid.add(pn, col++, row);
     }
 
@@ -275,6 +278,10 @@ public class ConnectScene {
     private void readyAction() {
         this.gameEngine.readyAction();
         btnStart.setDisable(true);
+    }
+
+    private String capitalize(String text) {
+        return text.substring(0, 1).toUpperCase(Locale.ROOT) + text.substring(1);
     }
 
 }

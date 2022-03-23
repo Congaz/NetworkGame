@@ -1,12 +1,25 @@
 
-.grid {
+.masterGrid {
+    -fx-font-size: 9pt; /* Default: 9pt */
     /*-fx-fit-to-width: 100;*/
     /*-fx-fit-to-height: 100;*/
+}
+
+/* --------------------------------------------------------------------------------------------------------------*/
+
+.scoreGrid {
+    -fx-padding: 20 0 0 0;
+}
+
+.scoreGrid .lblName {
+    -fx-font-weight: bold;
+    -fx-font-size: 10pt;
+}
+
+.scoreGrid .lblScore {
 
 }
 
-.scoreList {
-    /*-fx-fit-to-width: true;*/
-    /*-fx-fit-to-height: true;*/
-    /*-fx-pref-width: 150;*/
+.scoreGrid .lblScoreValue {
+    -fx-font-size: 11pt;
 }

@@ -8,13 +8,15 @@ import java.util.*;
 public class GameServer {
     // --- Server ---
     private String serverState;
-    private final int COUNTDOWN_TIME = 5; // Define countdown time in seconds.
+    private final int COUNTDOWN_SECONDS = 5; // Define countdown time in seconds.
     private int countdown;
 
     // --- Player ---
     private final HashMap<Integer, PlayerThread> playerThreads = new HashMap<Integer, PlayerThread>();
     private final String[] directions = {"up", "down", "left", "right"};
-    private final static String[] colors = {"white", "purple", "blue", "yellow"};
+    private final String[] colors = {"blue", "purple", "red", "white", "yellow"};
+    private final ArrayList<String> unusedColors = new ArrayList<>();
+
 
     // --- Board ---
     private String[] board;
@@ -46,9 +48,9 @@ public class GameServer {
                 Socket connSocket = welcomeSocket.accept();
 
                 // --- Create start params for player ---
-                int[] startPos = getRandomStartPos();
-                String direction = getRandomStartDirection();
-                String color = GameServer.colors[this.getRandomSignedInt(0, GameServer.colors.length - 1)];
+                int[] startPos = this.getRandomStartPos();
+                String direction = this.getRandomStartDirection();
+                String color = this.getRandomColor();
 
                 // --- Create player thread ---
                 PlayerThread pt = new PlayerThread(this, connSocket, startPos[0], startPos[1], direction, color);
@@ -62,6 +64,7 @@ public class GameServer {
                 params.put("posY", String.valueOf(startPos[1]));
                 params.put("direction", direction);
                 params.put("color", color);
+                params.put("ready", Boolean.toString(false));
                 params.put("board", BoardFactory.convertBoard2String(this.board));
                 pt.write(params);
 
@@ -154,7 +157,10 @@ public class GameServer {
      */
     private void reset() {
         // Reset countdown
-        this.countdown = this.COUNTDOWN_TIME;
+        this.countdown = this.COUNTDOWN_SECONDS;
+        // Reset unused colors
+        this.unusedColors.clear();
+        this.unusedColors.addAll(Arrays.asList(this.colors));
 
         // Create board
         this.board = BoardFactory.createRandomBoard();
@@ -251,6 +257,17 @@ public class GameServer {
      */
     private String getRandomStartDirection() {
         return this.directions[getRandomSignedInt(0, this.directions.length - 1)];
+    }
+
+    /**
+     * Returns random player color, chosen among unsued colors.
+     * @return
+     */
+    private String getRandomColor() {
+        int index = this.getRandomSignedInt(0, this.unusedColors.size() - 1);
+        String color = this.unusedColors.get(index);
+        this.unusedColors.remove(index);
+        return color;
     }
 
     /**

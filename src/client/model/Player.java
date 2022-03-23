@@ -12,16 +12,19 @@ public class Player {
 	private String direction;
 	private boolean ready;
 
-	public Player(int playerId, String playerName, int posX, int posY, String direction, String color) {
+	public Player(int playerId, String playerName, int posX, int posY, String direction, String color, boolean ready) {
+		// Passed
 		this.playerId = playerId;
 		this.playerName = playerName;
 		this.posX = posX;
 		this.posY = posY;
 		this.direction = direction;
 		this.color = color;
-		this.ready = false;
+		this.ready = ready;
+		// Hardcoded
 		this.points = 0;
-
+		this.prevPosX = -1;
+		this.prevPosY = -1;
 	}
 
 	public String toString() {
@@ -33,6 +36,8 @@ public class Player {
 		txt += "PosX: " + this.posX + "\n";
 		txt += "PosY: " + this.posY + "\n";
 		txt += "Direction: " + this.direction + "\n";
+		txt += "Color: " + this.color + "\n";
+		txt += "Ready: " + this.ready + "\n";
 		return txt;
 	}
 
