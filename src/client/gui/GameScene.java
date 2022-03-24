@@ -242,6 +242,7 @@ public class GameScene {
         scorePlayerGrid.add(lblScoreValue, 1, 2);
         this.scoreValues.put(p.getPlayerId(), lblScoreValue);
 
+        scorePlayerGrid.setId(String.valueOf(p.getPlayerId()));
         return scorePlayerGrid;
     }
 
