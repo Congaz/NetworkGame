@@ -11,11 +11,13 @@ import javafx.stage.Stage;
 import server.BoardFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 
 public class GameEngine {
+
     // --- Network ---
     private TcpClient tcpClient;
 
@@ -449,9 +451,11 @@ public class GameEngine {
     private String composeMessage(HashMap<String, String> params) {
         StringBuilder message = new StringBuilder();
         for (String key : params.keySet()) {
+            // We URL encode value.
+            String value = java.net.URLEncoder.encode(params.get(key), StandardCharsets.UTF_8);
             message.append(key);
             message.append(":");
-            message.append(params.get(key));
+            message.append(value);
             message.append(";");
         }
         return message.toString();
@@ -470,7 +474,9 @@ public class GameEngine {
         String[] pairs = message.split(";");
         for (String pair : pairs) {
             String[] tmp = pair.split(":");
-            params.put(tmp[0], tmp[1]);
+            // Value is URL encoded, so we must decode.
+            String value = java.net.URLDecoder.decode(tmp[1], StandardCharsets.UTF_8);
+            params.put(tmp[0], value);
         }
 
         return params;

@@ -224,7 +224,7 @@ public class BoardFactory {
 
     /**
      * Returns random signed integer.
-     * Pre: max is larger than min.
+     * Pre: max >= min.
      *
      * @param min Signed minimum value (inclusive).
      * @param max Signed maximum value (inclusive).

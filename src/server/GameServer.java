@@ -3,17 +3,16 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class GameServer {
     // --- Server ---
     private final int MIN_NUM_PLAYERS = 1; // Min. num of connected players to start countdown.
-    private final int MAX_NUM_PLAYERS = 5; // NOT IMPLEMENTED.
-    private final int COUNTDOWN_SECONDS = 5; // Define countdown time in seconds.
+    private final int MAX_NUM_PLAYERS = 5; // Server simply refuses anymore connections than this.
+    private final int COUNTDOWN_SECONDS = 5; // Countdown time in seconds.
     private int countdown;
     private String serverState;
-
-
 
     // --- Player ---
     private final HashMap<Integer, PlayerThread> playerThreads = new HashMap<Integer, PlayerThread>();
@@ -46,7 +45,7 @@ public class GameServer {
             ServerSocket welcomeSocket = new ServerSocket(9999);
 
             // Waiting for connections from players.
-            while (this.serverState.equals("acceptConnections")) {
+            while (this.serverState.equals("acceptConnections") && this.playerThreads.size() <= this.MAX_NUM_PLAYERS) {
                 // Accept connection
                 Socket connSocket = welcomeSocket.accept();
 
@@ -95,7 +94,7 @@ public class GameServer {
         this.checkRequiredKeys(params, new String[]{"message"});
 
         if (params.get("message").equals("connected")) {
-            // Player acknowledges connection. We expect players id and player name to be included.
+            // Player acknowledges connection. We expect player id and player name to be included.
             this.checkRequiredKeys(params, new String[]{"id", "name"});
             PlayerThread pt = playerThreads.get(Integer.parseInt(params.get("id")));
              if (pt == null) {
@@ -270,9 +269,7 @@ public class GameServer {
      */
     private String getRandomColor() {
         int index = this.getRandomSignedInt(0, this.unusedColors.size() - 1);
-        String color = this.unusedColors.get(index);
-        this.unusedColors.remove(index);
-        return color;
+        return this.unusedColors.remove(index);
     }
 
     /**
@@ -296,9 +293,11 @@ public class GameServer {
     public String composeMessage(HashMap<String, String> params) {
         StringBuilder message = new StringBuilder();
         for (String key : params.keySet()) {
+            // We URL encode value.
+            String value = java.net.URLEncoder.encode(params.get(key), StandardCharsets.UTF_8);
             message.append(key);
             message.append(":");
-            message.append(params.get(key));
+            message.append(value);
             message.append(";");
         }
         return message.toString();
@@ -317,7 +316,9 @@ public class GameServer {
 
         for (String pair : pairs) {
             String[] tmp = pair.split(":");
-            params.put(tmp[0], tmp[1]);
+            // Value is URL encoded, so we must decode.
+            String value = java.net.URLDecoder.decode(tmp[1], StandardCharsets.UTF_8);
+            params.put(tmp[0], value);
         }
 
         return params;

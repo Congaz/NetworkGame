@@ -67,7 +67,6 @@ public class GameScene {
             Text scoreLabel = new Text("Score:");
             scoreLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
 
-
             // Load graphics
             String imageDir = "images/";
             image_wall = new Image(
@@ -83,28 +82,26 @@ public class GameScene {
                 for (String direction : directions) {
                     String filename = "hero_" + color + "_" + direction + ".png";
                     GameScene.avatars.put(
-                            color + "_" + direction,
-                            new Image(
-                                    getClass().getResourceAsStream(imageDir + filename), TILE_SIZE, TILE_SIZE, false, false
-                            )
+                        color + "_" + direction,
+                        new Image(
+                            getClass().getResourceAsStream(imageDir + filename), TILE_SIZE, TILE_SIZE, false, false
+                        )
                     );
                 }
             }
 
-            // Icons
-            //double ratio = 293.0 / 263.0;
+            // Icons (for score)
             double ratio = 263.0 / 293.0;
             int icon_height = (int) Math.round(((TILE_SIZE * TILE_SIZE) - (4 * 10) - 40) / 5.0); // Src: 263px.
             int icon_width = (int) Math.round(icon_height * ratio); // Src: 293px.
             for (String color : GameScene.colors) {
                 String filename = "icon_" + color + ".png";
                 GameScene.icons.put(
-                        color,
-                        new Image(
-                                getClass().getResourceAsStream(imageDir + filename), icon_width, icon_height, false, true
-                        )
+                    color,
+                    new Image(
+                        getClass().getResourceAsStream(imageDir + filename), icon_width, icon_height, false, true
+                    )
                 );
-
             }
 
             // Create and populate boardGrid
@@ -203,7 +200,7 @@ public class GameScene {
         // Prepare color and direction
         String color = p.getColor();
         String direction = p.getDirection();
-        // Paint
+        // Paint at new position
         fields[posX][posY].setGraphic(new ImageView(avatars.get(color + "_" + direction)));
     }
 
@@ -214,7 +211,7 @@ public class GameScene {
     }
 
     private GridPane createScorePlayerGrid(Player p) {
-        // Create a grid per player
+        // Create for passed player
         GridPane scorePlayerGrid = new GridPane();
         scorePlayerGrid.setGridLinesVisible(false);
         scorePlayerGrid.setHgap(10);
