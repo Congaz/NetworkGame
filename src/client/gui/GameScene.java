@@ -139,6 +139,7 @@ public class GameScene {
             int selfId = this.gameEngine.getPlayerId();
             GridPane scorePlayerGrid = this.createScorePlayerGrid(players.get(selfId));
             this.scoreMainGrid.add(scorePlayerGrid, 0, row);
+            row++;
 
             for (Player p : players.values()) {
                 if (p.getPlayerId() != selfId) {
