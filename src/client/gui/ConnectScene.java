@@ -37,7 +37,7 @@ public class ConnectScene {
 
     public ConnectScene(GameEngine gameEngine) {
         this.gameEngine = gameEngine;
-        this.presetIp = "127.0.0.1";
+        this.presetIp = "10.10.138.22";
         this.presetName = "Mig";
     }
 
