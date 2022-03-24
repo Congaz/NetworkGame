@@ -7,16 +7,19 @@ import java.util.*;
 
 public class GameServer {
     // --- Server ---
-    private String serverState;
+    private final int MIN_NUM_PLAYERS = 1; // Min. num of connected players to start countdown.
+    private final int MAX_NUM_PLAYERS = 5; // NOT IMPLEMENTED.
     private final int COUNTDOWN_SECONDS = 5; // Define countdown time in seconds.
     private int countdown;
+    private String serverState;
+
+
 
     // --- Player ---
     private final HashMap<Integer, PlayerThread> playerThreads = new HashMap<Integer, PlayerThread>();
     private final String[] directions = {"up", "down", "left", "right"};
     private final String[] colors = {"blue", "purple", "red", "white", "yellow"};
     private final ArrayList<String> unusedColors = new ArrayList<>();
-
 
     // --- Board ---
     private String[] board;
@@ -186,19 +189,21 @@ public class GameServer {
             PlayerThread pt = this.playerThreads.get(Integer.parseInt(params.get("id")));
             pt.setReady(true);
 
-            // --- Check if all players are ready ---
-            boolean ready = true;
-            Iterator<Map.Entry<Integer, PlayerThread>> it = this.playerThreads.entrySet().iterator();
-            while (it.hasNext() && ready) {
-                Map.Entry<Integer, PlayerThread> set = it.next();
-                PlayerThread plt = set.getValue();
-                ready = plt.isReady();
-            }
+            if (this.playerThreads.size() >= this.MIN_NUM_PLAYERS) {
+                // --- Check if all players are ready ---
+                boolean ready = true;
+                Iterator<Map.Entry<Integer, PlayerThread>> it = this.playerThreads.entrySet().iterator();
+                while (it.hasNext() && ready) {
+                    Map.Entry<Integer, PlayerThread> set = it.next();
+                    PlayerThread plt = set.getValue();
+                    ready = plt.isReady();
+                }
 
-            if (ready) {
-                // All players have clicked start. Begin countdown to game start.
-                this.serverState = "countdown";
-                this.stateCountdown();
+                if (ready) {
+                    // All players have clicked start. Begin countdown to game start.
+                    this.serverState = "countdown";
+                    this.stateCountdown();
+                }
             }
         }
     }
