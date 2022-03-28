@@ -86,6 +86,11 @@ public class GameEngine {
         return this.playerName;
     }
 
+    public HashMap<Integer, Player> getPlayers() {
+        return this.players;
+    }
+
+
     // *** Methods invoked by Gui ********************************************************************************
 
     /**
@@ -114,14 +119,14 @@ public class GameEngine {
         this.writeServer(params);
     }
 
-    // ******************************************************************************************************
+    // *** Netowrk input *********************************************************************************************
 
     /**
      * Invoked by TCPClientThreadRead whenever message is recieved from server.
      *
      * @param message
      */
-    public synchronized void fromServer(String message) throws RuntimeException {
+    public void fromServer(String message) throws RuntimeException {
         // Parse message. Require that "message" key is present.
         HashMap<String, String> params = this.parseFromServer(message, new String[]{"message"});
 
@@ -173,12 +178,6 @@ public class GameEngine {
         }
 
     }
-
-
-    public HashMap<Integer, Player> getPlayers() {
-        return this.players;
-    }
-
 
 
     // *** Pre-game logic ********************************************************************************************
