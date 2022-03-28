@@ -127,7 +127,7 @@ public class GameServer {
      *
      * @param params
      */
-    public synchronized void broadcast(HashMap<String, String> params) {
+    public void broadcast(HashMap<String, String> params) {
         // Check if any playerThreads should be excluded from broadcast.
         int excludeId = -1;
         if (params.containsKey("broadcastExcludeId")) {
