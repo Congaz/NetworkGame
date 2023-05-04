@@ -1,82 +1,335 @@
 package server;
 
-import java.net.InetSocketAddress;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
-public class GameServer
-{
-    private final static HashMap<Integer, PlayerThread> playerThreads = new HashMap<Integer, PlayerThread>();
-    private final static boolean[][] occupiedStartPos = new boolean[20][20];
+public class GameServer {
+    // --- Server ---
+    private final int MIN_NUM_PLAYERS = 1; // Min. num of connected players to start countdown.
+    private final int MAX_NUM_PLAYERS = 5; // Server simply refuses anymore connections than this.
+    private final int COUNTDOWN_SECONDS = 5; // Countdown time in seconds.
+    private int countdown;
+    private String serverState;
 
-    private  final static String[] board = {    // 20x20
-			"wwwwwwwwwwwwwwwwwwww",
-			"w        ww        w",
-			"w w  w  www w  w  ww",
-			"w w  w   ww w  w  ww",
-			"w  w               w",
-			"w w w w w w w  w  ww",
-			"w w     www w  w  ww",
-			"w w     w w w  w  ww",
-			"w   w w  w  w  w   w",
-			"w     w  w  w  w   w",
-			"w ww ww        w  ww",
-			"w  w w    w    w  ww",
-			"w        ww w  w  ww",
-			"w         w w  w  ww",
-			"w        w     w  ww",
-			"w  w              ww",
-			"w  w www  w w  ww ww",
-			"w w      ww w     ww",
-			"w   w   ww  w      w",
-			"wwwwwwwwwwwwwwwwwwww"
-	};
+    // --- Player ---
+    private final HashMap<Integer, PlayerThread> playerThreads = new HashMap<Integer, PlayerThread>();
+    private final String[] directions = {"up", "down", "left", "right"};
+    private final String[] colors = {"blue", "purple", "red", "white", "yellow"};
+    private final ArrayList<String> unusedColors = new ArrayList<>();
+
+    // --- Board ---
+    private String[] board;
+    private final boolean[][] occupiedStartPos = new boolean[20][20]; // x/y.
 
     /**
-     * @param args
+     *
      */
-    public static void main(String[] args) throws Exception
-    {
-        for (int x = 0; x < occupiedStartPos.length; x++) {
-            Arrays.fill(occupiedStartPos[x], false);
+    public GameServer() {
+        System.out.println("--- Server ---");
+        System.out.println("on-line.");
+
+        try {
+            BoardFactory.verfifyAll();
+        }
+        catch (RuntimeException e) {
+            e.printStackTrace();
         }
 
-        ServerSocket welcomeSocket = new ServerSocket(9999);
+        this.reset();
+        this.serverState = "acceptConnections";
 
-        while (true) {
-            Socket connSocket = welcomeSocket.accept();
+        try {
+            ServerSocket welcomeSocket = new ServerSocket(9999);
 
-            PlayerThread pt = new PlayerThread(connSocket);
-            playerThreads.put(pt.getPlayerId(), pt);
+            // Waiting for connections from players.
+            while (this.serverState.equals("acceptConnections") && this.playerThreads.size() <= this.MAX_NUM_PLAYERS) {
+                // Accept connection
+                Socket connSocket = welcomeSocket.accept();
 
+                // --- Create start params for player ---
+                int[] startPos = this.getRandomStartPos();
+                String direction = this.getRandomStartDirection();
+                String color = this.getRandomColor();
 
-            int[] startPos = getRandomStartPos();
-            pt.write("id:" + pt.getPlayerId() + ";posX:" + startPos[0] + ";posY:" + startPos[1]);
+                // --- Create player thread ---
+                PlayerThread pt = new PlayerThread(this, connSocket, startPos[0], startPos[1], direction, color);
+                playerThreads.put(pt.getPlayerId(), pt);
 
-            System.out.println("--- Connected ---");
-            System.out.println("PlayerId: " + pt.getPlayerId());
+                // --- Send start params and game board to this player ---
+                HashMap<String, String> params = new HashMap<>();
+                params.put("message", "connected");
+                params.put("id", String.valueOf(pt.getPlayerId()));
+                params.put("posX", String.valueOf(startPos[0]));
+                params.put("posY", String.valueOf(startPos[1]));
+                params.put("direction", direction);
+                params.put("color", color);
+                params.put("ready", Boolean.toString(false));
+                params.put("board", BoardFactory.convertBoard2String(this.board));
+                pt.write(params);
 
-
-
+                // Start broadcast mirroring from this player.
+                pt.start();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private static int[] getRandomStartPos() {
-        int min = 0;
-        int max = 19;
-        int posX = 0;
-        int posY = 0;
+    public String getServerState() {
+        return this.serverState;
+    }
 
-        while (occupiedStartPos[posX][posY] || board[posY].charAt(posX) == 'w') {
-            posX = (int)(Math.random() * ((max - min) + 1)) + min;;
-            posY = (int)(Math.random() * ((max - min) + 1)) + min;;
+    /**
+     * Called by any PlayerThread that recieves a message with broadcast:false.
+     * This means that the message is ment for the server only.
+     * Throws IllegalArgumentException of required keys are missing.
+     * Throws NoSuchElementException if player id couldn't be resolved to player object.
+     * @param params
+     */
+    public synchronized void fromPlayer(HashMap<String, String> params) throws RuntimeException {
+        this.checkRequiredKeys(params, new String[]{"message"});
+
+        if (params.get("message").equals("connected")) {
+            // Player acknowledges connection. We expect player id and player name to be included.
+            this.checkRequiredKeys(params, new String[]{"id", "name"});
+            PlayerThread pt = playerThreads.get(Integer.parseInt(params.get("id")));
+             if (pt == null) {
+                throw new NoSuchElementException("Unable to retrieve player object from id: " + params.get("id"));
+            }
+            pt.setPlayerName(params.get("name"));
+
+            // Players presence must now be broadcast to all but the player that sent the message.
+            HashMap<String , String> paramsOut = pt.createUpdatePackage();
+            paramsOut.put("message", "connected");
+            paramsOut.put("broadcastExcludeId", String.valueOf(pt.getPlayerId()));
+            this.broadcast(paramsOut);
+
+            // The player that sent the message must now be updated on all, already connected players.
+            Set<Integer> idSet = this.playerThreads.keySet();
+            for (int id : idSet) {
+                if (id != pt.getPlayerId()) {
+                    PlayerThread oldPlayer = this.playerThreads.get(id);
+                    HashMap<String, String> paramsConnected = oldPlayer.createUpdatePackage();
+                    paramsConnected.put("message", "connected");
+                    pt.write(paramsConnected);
+                }
+            }
+        }
+    }
+
+    /**
+     * Broadcasts message to all players.
+     * Called by PlayerThread(s) whenever they recieve input (except if message includes broadcast:false).
+     *
+     * @param params
+     */
+    public synchronized void broadcast(HashMap<String, String> params) {
+        // Check if any playerThreads should be excluded from broadcast.
+        int excludeId = -1;
+        if (params.containsKey("broadcastExcludeId")) {
+            excludeId = Integer.parseInt(params.get("broadcastExcludeId"));
+        }
+
+        if (this.serverState.equals("running")) {
+            this.checkRequiredKeys(params, new String[]{"message"});
+            if (params.get("message").equals("requestMove")) {
+                params.replace("message", "move");
+            }
+        }
+
+        // Broadcast
+        for (PlayerThread pt : playerThreads.values()) {
+            if (excludeId == -1 || pt.getPlayerId() != excludeId) {
+                pt.write(params);
+            }
+        }
+
+        // --- Perform state dependent operations ---
+        if (this.serverState.equals("acceptConnections")) {
+            this.stateAcceptConnections(params);
+        }
+    }
+
+    /**
+     * Resets game related params.
+     */
+    private void reset() {
+        // Reset countdown
+        this.countdown = this.COUNTDOWN_SECONDS;
+        // Reset unused colors
+        this.unusedColors.clear();
+        this.unusedColors.addAll(Arrays.asList(this.colors));
+
+        // Create board
+        this.board = BoardFactory.createRandomBoard();
+
+        // Fill occupiedStartPos with false.
+        for (boolean[] cols : occupiedStartPos) {
+            Arrays.fill(cols, false);
+        }
+    }
+
+    // *** Pre-game methods **********************************************************************************
+
+    /**
+     * Throws IllegalArgumentException on missing keys.
+     * @param params
+     */
+    private void stateAcceptConnections(HashMap<String, String> params) throws IllegalArgumentException {
+        this.checkRequiredKeys(params, new String[]{"message"});
+
+       if (params.get("message").equals("ready")) {
+            // --- Player has clicked start ---
+            this.checkRequiredKeys(params, new String[]{"id"});
+            PlayerThread pt = this.playerThreads.get(Integer.parseInt(params.get("id")));
+            pt.setReady(true);
+
+            if (this.playerThreads.size() >= this.MIN_NUM_PLAYERS) {
+                // --- Check if all players are ready ---
+                boolean ready = true;
+                Iterator<Map.Entry<Integer, PlayerThread>> it = this.playerThreads.entrySet().iterator();
+                while (it.hasNext() && ready) {
+                    Map.Entry<Integer, PlayerThread> set = it.next();
+                    PlayerThread plt = set.getValue();
+                    ready = plt.isReady();
+                }
+
+                if (ready) {
+                    // All players have clicked start. Begin countdown to game start.
+                    this.serverState = "countdown";
+                    this.stateCountdown();
+                }
+            }
+        }
+    }
+
+    /**
+     * Performs countdown to game start.
+     */
+    private void stateCountdown() {
+        TimerTask countdownTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (countdown > 0) {
+                    HashMap<String, String> params = new HashMap<>();
+                    params.put("message", "countdown");
+                    params.put("countdown", String.valueOf(countdown--));
+                    broadcast(params);
+                } else {
+                    cancel();
+                    //timer.cancel();
+                    HashMap<String, String> params = new HashMap<>();
+                    params.put("message", "start");
+                    serverState = "running";
+                    broadcast(params);
+                }
+            }
         };
 
-        occupiedStartPos[posX][posY] = true;
+        Timer timer = new Timer("Timer");
+        timer.scheduleAtFixedRate(countdownTask, 0, 1000);
+    }
+
+    // ****************************************************************************************************************
+
+    /**
+     * Creates and returns random start position for player.
+     *
+     * @return
+     */
+    private int[] getRandomStartPos() {
+        int border = 1; // Thickness of wall border on board-map.
+        int posX, posY;
+
+        do {
+            posX = this.getRandomSignedInt(border, this.board[0].length() - border); // min, num-of-columns
+            posY = this.getRandomSignedInt(border, this.board.length - border); // min, num-of-rows.
+        } while (this.occupiedStartPos[posX][posY] || this.board[posY].charAt(posX) == 'w');
+
+        this.occupiedStartPos[posX][posY] = true;
         return new int[]{posX, posY};
+    }
+
+    /**
+     * Creates and returns random start direction for player.
+     *
+     * @return
+     */
+    private String getRandomStartDirection() {
+        return this.directions[getRandomSignedInt(0, this.directions.length - 1)];
+    }
+
+    /**
+     * Returns random player color, chosen among unsued colors.
+     * @return
+     */
+    private String getRandomColor() {
+        int index = this.getRandomSignedInt(0, this.unusedColors.size() - 1);
+        return this.unusedColors.remove(index);
+    }
+
+    /**
+     * Returns random signed integer.
+     * Pre: max > min.
+     *
+     * @param min Signed minimum value (inclusive).
+     * @param max Signed maximum value (inclusive).
+     * @return
+     */
+    private int getRandomSignedInt(int min, int max) {
+        return (int) (Math.random() * (max - min + 1)) + min;
+    }
+
+    /**
+     * Converts HashMap to string.
+     *
+     * @param params
+     * @return
+     */
+    public String composeMessage(HashMap<String, String> params) {
+        StringBuilder message = new StringBuilder();
+        for (String key : params.keySet()) {
+            // We URL encode value.
+            String value = java.net.URLEncoder.encode(params.get(key), StandardCharsets.UTF_8);
+            message.append(key);
+            message.append(":");
+            message.append(value);
+            message.append(";");
+        }
+        return message.toString();
+    }
+
+    /**
+     * Parses message from client.
+     * Returns key/value hash map.
+     *
+     * @param message
+     * @return
+     */
+    public HashMap<String, String> parseMessage(String message) {
+        HashMap<String, String> params = new HashMap<String, String>();
+        String[] pairs = message.split(";");
+
+        for (String pair : pairs) {
+            String[] tmp = pair.split(":");
+            // Value is URL encoded, so we must decode.
+            String value = java.net.URLDecoder.decode(tmp[1], StandardCharsets.UTF_8);
+            params.put(tmp[0], value);
+        }
+
+        return params;
+    }
+
+    public void checkRequiredKeys(HashMap<String, String> params, String[] requiredKeys) throws IllegalArgumentException {
+        for (String requiredKey : requiredKeys) {
+            if (!params.containsKey(requiredKey)) {
+                throw new IllegalArgumentException("Required key is missing: " + requiredKey);
+            }
+        }
     }
 
 }

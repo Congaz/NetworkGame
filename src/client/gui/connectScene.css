@@ -1,0 +1,98 @@
+
+.masterGrid {
+    -fx-font-size: 9pt; /* Default: 9pt */
+    -fx-padding: 30 0 0 0;
+}
+
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.connectGrid {
+    -fx-padding: 0  0  0  0;
+}
+
+.btnConnect {
+    -fx-pref-width: 125;
+    /*-fx-pref-height: 30;*/
+
+}
+
+.btnStart {
+    -fx-pref-width: 175;
+    -fx-pref-height: 40;
+}
+
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.messageGrid {
+    -fx-font-size: 12pt;
+}
+
+.messageGrid.countdown {
+    -fx-background-color: red;
+}
+
+.lblMessage {
+
+}
+
+.lblValue {
+}
+
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.playerGrid {
+    -fx-pref-width: 400;
+    -fx-pref-height: 105;
+    -fx-padding: 0;
+    -fx-border-width: 1px;
+    -fx-border-color: #0078aa;
+    -fx-border-insets: -10;
+    /*-fx-background-insets: 20;*/
+    /*-fx-background-color: #eeeeee;*/
+}
+
+.playerGrid Label {
+    -fx-padding: 0 10 0 10;
+}
+
+.legendPane {
+    -fx-background-color: #dddddd;
+    -fx-font-size: 10pt;
+    -fx-font-weight: bold;
+}
+
+.playerPaneRow.even {
+    -fx-background-color: #f0f0f0;
+}
+
+.playerPaneRow.odd {
+    -fx-background-color: #f5f5f5;
+}
+
+/* --- Player colors -------------------- */
+
+.playerPaneRow.blue {
+    -fx-background-color: #1f6cb5;
+}
+
+.playerPaneRow.purple {
+    -fx-background-color: #bf60a5;
+}
+
+.playerPaneRow.red {
+    -fx-background-color: #ed2024;
+}
+
+.playerPaneRow.white {
+    -fx-background-color: #ffffff;
+}
+
+.playerPaneRow.yellow {
+    -fx-background-color: #f7ec28;
+}
+
+
+
+
+
+

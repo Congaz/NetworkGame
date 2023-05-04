@@ -1,0 +1,25 @@
+
+.masterGrid {
+    -fx-font-size: 9pt; /* Default: 9pt */
+    /*-fx-fit-to-width: 100;*/
+    /*-fx-fit-to-height: 100;*/
+}
+
+/* --------------------------------------------------------------------------------------------------------------*/
+
+.scoreGrid {
+    -fx-padding: 20 0 0 0;
+}
+
+.scoreGrid .lblName {
+    -fx-font-weight: bold;
+    -fx-font-size: 10pt;
+}
+
+.scoreGrid .lblScore {
+
+}
+
+.scoreGrid .lblScoreValue {
+    -fx-font-size: 11pt;
+}
